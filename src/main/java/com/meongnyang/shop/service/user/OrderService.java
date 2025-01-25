@@ -35,8 +35,6 @@ public class OrderService {
     @Autowired
     private UserOrderDetailMapper userOrderDetailMapper;
     @Autowired
-    private ProductMapper productMapper;
-    @Autowired
     private PaymentMapper paymentMapper;
     @Autowired
     private StockMapper stockMapper;
@@ -67,9 +65,7 @@ public class OrderService {
                         .productPrice(product.getProductPrice())
                         .productCount(Long.valueOf(product.getProductCount()))
                         .build();
-                System.out.println(orderDetail);
                 userOrderDetailMapper.save(orderDetail);
-                System.out.println(orderDetail.getId());
                 //가재고 빼기, 재고 상세 추가(배송중으로)
                 Map<String, Object> params = Map.of(
                         "productId", product.getProductId(),
@@ -128,6 +124,7 @@ public class OrderService {
         }
     }
 
+    //주문/배송 내역 조회
     public RespGetOrderListDto getOrderList (ReqGetOrderListDto dto){
         Long startIndex = (dto.getPage() - 1) * dto.getLimit();
         Map<String, Object> params = Map.of(
@@ -140,7 +137,6 @@ public class OrderService {
         );
 
         List<Order> orderList = userOrderMapper.findAllOrders(params);
-        System.out.println("orderList" + orderList);
         List<RespGetOrderListDto.OrderList> orderListDtos = new ArrayList<>();
 
         for (Order order : orderList) {
@@ -195,6 +191,5 @@ public class OrderService {
                 stockMapper.modifyCurrentStockByProductId(productDetail);
             }
         }
-        System.out.println("구매확정 업데이트 성공");
     }
 }
