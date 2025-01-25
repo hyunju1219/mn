@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.meongnyang.shop.repository.StockMapper">
+
+    <resultMap id="stockResultMap" type="com.meongnyang.shop.entity.Stock">
+        <id property="id" column="st_id" />
+        <result property="productId" column="product_id" />
+        <result property="currentStock" column="current_stock" />
+        <result property="expectedStock" column="expected_stock" />
+        <result property="minAlertQuantity" column="min_alert_quantity" />
+        <result property="alertSetting" column="alert_setting" />
+        <association property="product" resultMap="stockDetailProductNameResultMap" />
+        <collection property="stockDetails" javaType="java.util.List" resultMap="stockDetailResultMap" />
+    </resultMap>
+
+    <resultMap id="stockDetailProductNameResultMap" type="com.meongnyang.shop.entity.Product">
+        <result property="productName" column="product_name" />
+    </resultMap>
+
+    <resultMap id="stockDetailResultMap" type="com.meongnyang.shop.entity.StockDetail">
+        <id property="id" column="sdt_id" />
+        <result property="type" column="type" />
+        <result property="createDate" column="create_date" />
+        <result property="arrivalDate" column="arrival_date" />
+        <result property="arrivalQuantity" column="arrival_quantity" />
+        <result property="status" column="status" />
+    </resultMap>
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        insert into stock_tb
+        values(default, #{productId}, 0, 0, 0, 1)
+    </insert>
+    <update id="modifyStockByProductId">
+        update stock_tb
+        set
+            current_stock = #{currentStock},
+            expected_stock = #{expectedStock},
+            min_alert_quantity = #{minAlertQuantity},
+            alert_setting = #{alertSetting}
+        where
+            product_id = #{productId}
+    </update>
+    <update id="modifyStockById">
+        update stock_tb
+        set
+            current_stock = #{currentStock},
+            expected_stock = #{expectedStock},
+            min_alert_quantity = #{minAlertQuantity},
+            alert_setting = #{alertSetting}
+        where
+            id = #{id}
+    </update>
+    <update id="modifyCurrentAndExpectedStock">
+        update stock_tb
+        set
+            current_stock = #{currentStock},
+            expected_stock = #{expectedStock}
+        where
+            id = #{id}
+    </update>
+    <update id="modifyAlertSetting">
+        update stock_tb
+        set
+            min_alert_quantity = #{minAlertQuantity},
+            alert_setting = #{alertSetting}
+        where
+            id = #{id}
+    </update>
+    <update id="modifyCurrentStockByProductId">
+        <if test="orderStatus == '구매확정'">
+            update stock_tb
+            set
+                current_stock = current_stock - #{productCount}
+            where
+                product_id = #{productId}
+        </if>
+        <if test="orderStatus == '환불완료'">
+            update stock_tb
+            set
+                expected_stock = expected_stock + #{productCount}
+            where
+                product_id = #{productId}
+        </if>
+    </update>
+    <update id="modifyExpectedStockByProductId">
+        update stock_tb
+        set
+            expected_stock = expected_stock - #{productCount}
+        where
+            product_id = #{productId}
+    </update>
+    <delete id="deleteStockByProductId">
+        delete
+        from
+            stock_tb
+        where
+            product_id = #{productId}
+    </delete>
+    <delete id="deleteStockAll">
+        truncate table stock_tb;
+    </delete>
+    <select id="findStockAll" resultType="com.meongnyang.shop.entity.Stock">
+        select
+            s.id,
+            s.product_id as productId,
+            p.product_name as productName,
+            s.current_stock as currentStock,
+            s.expected_stock as expectedStock,
+            s.min_alert_quantity as minAlertQuantity,
+            s.alert_setting as alertSetting,
+            sdt.arrival_date as arrivalDate,
+            sdt.arrival_quantity as arrivalQuantity
+        from
+            stock_tb s
+            left outer join product_tb p on(s.product_id = p.id)
+            left outer join stock_detail_tb sdt on(s.id = sdt.stock_id)
+    </select>
+    <select id="findStockByOption" resultType="com.meongnyang.shop.entity.Stock">
+        select
+            s.id,
+            s.product_id as productId,
+            p.product_name as productName,
+            s.current_stock as currentStock,
+            s.expected_stock as expectedStock,
+            s.min_alert_quantity as minAlertQuantity,
+            s.alert_setting as alertSetting
+        from
+            stock_tb s
+            left outer join product_tb p on(s.product_id = p.id)
+        where
+            1 = 1
+            <if test='option.equals("전체")'>
+                and (
+                    s.product_id like concat('%', trim(ifnull(#{searchWord}, '')), "%")
+                    or p.product_name like concat('%', trim(ifnull(#{searchWord}, '')), "%")
+                )
+            </if>
+            <if test='option.equals("상품코드")'>
+                and (
+                    s.product_id like concat('%', trim(ifnull(#{searchWord}, '')), "%")
+                )
+            </if>
+            <if test='option.equals("상품명")'>
+                and (
+                    p.product_name like concat('%', trim(ifnull(#{searchWord}, '')), "%")
+                )
+            </if>
+        limit #{startIndex}, #{limit}
+    </select>
+    <select id="findStockByProductId" resultType="com.meongnyang.shop.entity.Stock">
+        select
+            s.id,
+            s.product_id as productId,
+            p.product_name as productName,
+            s.current_stock as currentStock,
+            s.expected_stock as expectedStock,
+            s.min_alert_quantity as minAlertQuantity,
+            s.alert_setting as alertSetting
+        from
+            stock_tb s
+            left outer join product_tb p on(s.product_id = p.id)
+        where
+            product_id = #{productId}
+    </select>
+    <select id="getAllCount" resultType="java.lang.Integer">
+        select
+            count(*)
+        from
+            stock_tb s
+            left outer join product_tb p on(s.product_id = p.id)
+        where
+        1 = 1
+            <if test='option.equals("전체")'>
+                and (
+                    s.product_id like concat('%', trim(ifnull(#{searchWord}, '')), "%")
+                    or p.product_name like concat('%', trim(ifnull(#{searchWord}, '')), "%")
+                )
+            </if>
+            <if test='option.equals("상품코드")'>
+                and (
+                    s.product_id like concat('%', trim(ifnull(#{searchWord}, '')), "%")
+                )
+            </if>
+            <if test='option.equals("상품명")'>
+                and (
+                    p.product_name like concat('%', trim(ifnull(#{searchWord}, '')), "%")
+                )
+            </if>
+    </select>
+    <select id="getDashboardStockStatus"
+            resultType="com.meongnyang.shop.dto.response.admin.RespDashboardDto$StockStatus">
+        select
+            st.product_id productId,
+            pt.product_name productName,
+            st.current_stock currentStock,
+            st.expected_stock expectedStock
+        from
+            stock_tb st
+            left outer join product_tb pt on(pt.id = st.product_id)
+        where
+            st.expected_stock <![CDATA[<=]]> min_alert_quantity
+        limit 0, 7
+    </select>
+
+    <select id="findCurrenStockByProductIds" resultType="com.meongnyang.shop.entity.Stock">
+        select
+            product_id as productId,
+            current_stock as currentStock
+        from
+            stock_tb
+        where
+            product_id in (
+            <foreach collection="productIds" item="productId" separator=",">
+                #{productId}
+            </foreach>
+        )
+    </select>
+    <select id="getStockDetail" resultMap="stockResultMap">
+        select
+            st.id as st_id,
+            st.product_id,
+            st.current_stock,
+            st.expected_stock,
+            st.min_alert_quantity,
+            st.alert_setting,
+            pt.product_name,
+            sdt.id as sdt_id,
+            sdt.type,
+            sdt.create_date,
+            sdt.arrival_date,
+            sdt.arrival_quantity,
+            sdt.status
+        from
+            stock_tb st
+            left outer join product_tb pt on(st.product_id = pt.id)
+            left outer join stock_detail_tb sdt on(st.id = sdt.stock_id and sdt.status = '입고예정')
+        where
+            st.id = #{id}
+    </select>
+    <select id="findStockDataById" resultType="com.meongnyang.shop.entity.Stock">
+        select
+            id,
+            current_stock currentStock,
+            expected_stock expectedStock
+        from
+            stock_tb
+        where
+            id = #{id}
+    </select>
+</mapper>

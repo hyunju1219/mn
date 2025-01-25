@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.meongnyang.shop.repository.ImgUrlMapper">
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        insert into img_url_tb
+        values(default, #{productId}, #{imgPath}, #{imgName})
+    </insert>
+
+    <delete id="deleteImgUrlById">
+        delete
+        from
+            img_url_tb
+        where id in
+        <foreach collection="idList" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteImgUrlAll">
+        truncate table img_url_tb
+    </delete>
+    <delete id="deleteImgByNames">
+        delete
+        from
+            img_url_tb
+        where
+            img_name in
+            <foreach collection="imgNameList" item="imgName" open="(" separator="," close=")">
+                #{imgName}
+            </foreach>
+    </delete>
+
+    <select id="findImgUrlByProductId" resultType="com.meongnyang.shop.entity.ImgUrl">
+        select
+            id,
+            product_id as productId,
+            img_path as imgPath,
+            img_name as imgName
+        from
+            img_url_tb
+        where
+            product_id = #{productId}
+    </select>
+    <select id="findImgNameByProductId" resultType="com.meongnyang.shop.entity.ImgUrl">
+        select
+            id,
+            img_name as imgName
+        from
+            img_url_tb
+        where
+            product_id = #{productId}
+        order by
+            id
+        limit 0, 1;
+    </select>
+</mapper>

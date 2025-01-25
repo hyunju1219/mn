@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.meongnyang.shop.repository.RoleMapper">
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        insert into role_tb
+        values(default, #{roleName})
+    </insert>
+
+    <select id="findByRoleName" resultType="com.meongnyang.shop.entity.Role">
+        select
+            id,
+            role_name
+        from
+            role_tb
+        where
+            role_name = #{roleName}
+    </select>
+</mapper>

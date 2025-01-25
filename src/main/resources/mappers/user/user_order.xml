@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.meongnyang.shop.repository.user.UserOrderMapper">
+
+    <resultMap id="orderResultMap" type="com.meongnyang.shop.entity.Order">
+        <id property="id" column="o_id" />
+        <result property="userId" column="user_id" />
+        <result property="totalPrice" column="total_price" />
+        <result property="orderItemCount" column="order_item_count" />
+        <result property="orderDate" column="order_date" />
+        <result property="orderStatus" column="order_status" />
+        <result property="orderName" column="order_name" />
+        <result property="zipcode" column="zipcode" />
+        <result property="addressDefault" column="address_default" />
+        <result property="addressDetail" column="address_detail" />
+        <result property="phone" column="phone" />
+        <result property="email" column="email" />
+        <result property="request" column="request" />
+        <result property="paymentId" column="payment_id" />
+        <association property="payment" resultMap="paymentResultMap" />
+    </resultMap>
+    <resultMap id="paymentResultMap" type="com.meongnyang.shop.entity.Payment">
+        <id property="id" column="p_id" />
+        <result property="paymentName" column="payment_name" />
+    </resultMap>
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        insert into order_tb
+        values(default, #{userId}, #{paymentId}, #{totalPrice}, default, now(), default, #{orderName},
+        #{phone}, #{zipcode}, #{addressDefault}, #{addressDetail}, #{email}, #{request}, #{paymentType})
+    </insert>
+    <select id="findOrderById" resultType="com.meongnyang.shop.entity.Order">
+        select
+            *
+        from
+            order_tb
+        where
+            id = #{id}
+    </select>
+
+    <select id="findAllOrders" resultMap="orderResultMap">
+        select
+            o.id as o_id,
+            o.user_id,
+            o.payment_id,
+            o.total_price,
+            o.order_item_count,
+            o.order_date,
+            o.order_status,
+            o.order_name,
+            o.phone,
+            o.zipcode,
+            o.address_default,
+            o.address_detail,
+            o.email,
+            o.request,
+            o.payment_type,
+            p.id as p_id,
+            p.payment_name
+        from
+            order_tb o
+            left outer join payment_tb p on(p.id = o.payment_type)
+        where
+            user_id = #{userId}
+        <if test='paymentSelect.equals("결제완료")'>
+            and order_status = "결제완료"
+        </if>
+        <if test='paymentSelect.equals("환불완료")'>
+            and order_status = "환불완료"
+        </if>
+        <if test='!startDate.equals("") and !endDate.equals("")'>
+            and DATE(o.order_date) between #{startDate} and #{endDate}
+        </if>
+
+        <if test='!startDate.equals("") and endDate.equals("")'>
+            and DATE(o.order_date) >= #{startDate}
+        </if>
+        <if test='startDate.equals("") and !endDate.equals("")'>
+            and DATE(o.order_date) <![CDATA[<=]]> #{endDate}
+        </if>
+        order by
+            o.order_date desc
+        limit #{startIndex}, #{limit}
+    </select>
+    <select id="findOrderCount" resultType="java.lang.Integer">
+        select
+            count(*)
+        from
+            order_tb
+        where
+            user_id = #{id}
+    </select>
+    <select id="findArrivingStatusOrderList" resultType="com.meongnyang.shop.entity.Order">
+        select
+            id,
+            user_id userId,
+            order_status orderStatus
+        from
+            order_tb
+        where
+            order_status = '결제완료'
+            and date_add(order_date, interval 3 day) <![CDATA[<]]> now();
+    </select>
+
+    <update id="modifyOrder">
+        update order_tb
+        set
+            order_status = #{orderStatus}
+        where
+            id = #{id}
+    </update>
+
+</mapper>
+
+

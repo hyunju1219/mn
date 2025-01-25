@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.meongnyang.shop.repository.MembershipMapper">
+    <insert id="save">
+        insert into membership_level_tb
+        values(default, #{membershipLevelName})
+    </insert>
+    <select id="findMembershipByName" resultType="com.meongnyang.shop.entity.Membership">
+        select
+            id,
+            membership_level_name as membershipLevelName
+        from
+            membership_level_tb
+        where
+            membership_level_name = #{name}
+    </select>
+    <select id="findMembershipId" resultType="java.lang.Long">
+        select
+            id
+        from
+            membership_level_tb
+    </select>
+    <select id="findMembershipAll" resultType="com.meongnyang.shop.entity.Membership">
+        select
+            id,
+            membership_level_name as membershipLevelName
+        from
+            membership_level_tb
+    </select>
+
+
+</mapper>

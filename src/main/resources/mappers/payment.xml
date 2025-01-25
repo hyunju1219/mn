@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.meongnyang.shop.repository.PaymentMapper">
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        insert into payment_tb
+        values(default, #{paymentName}, #{paymentMethod}, #{paymentChannelKey})
+    </insert>
+    <select id="findPaymentByName" resultType="com.meongnyang.shop.entity.Payment">
+        select
+            id,
+            payment_name as paymentName,
+            payment_method as paymentMethod,
+            payment_channel_key as paymentChannelKey
+        from
+            payment_tb
+        where
+            payment_name = #{name}
+    </select>
+    <select id="findAll" resultType="com.meongnyang.shop.entity.Payment">
+        select
+            id,
+            payment_name as paymentName,
+            payment_method as paymentMethod,
+            payment_channel_key as paymentChannelKey
+        from
+            payment_tb
+        order by
+            id
+    </select>
+    <select id="findPaymentMethodByName" resultType="com.meongnyang.shop.entity.Payment">
+        select
+            id,
+            payment_name as paymentName,
+            payment_method as paymentMethod,
+            payment_channel_key as paymentChannelKey
+        from
+            payment_tb
+        where
+            payment_method = #{name}
+    </select>
+</mapper>

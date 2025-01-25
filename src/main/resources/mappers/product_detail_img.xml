@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.meongnyang.shop.repository.ProductDetailImgMapper">
+    <insert id="save">
+        insert
+        into
+            product_detail_img_tb
+        values
+            <foreach item="img" collection="list" separator=",">
+                (default, #{img.productId}, #{img.imgPath}, #{img.imgName})
+            </foreach>
+    </insert>
+    <delete id="deleteByImgNames">
+        delete
+        from
+            product_detail_img_tb
+        where
+            img_name in
+            <foreach collection="imgNames" item="imgName" open="(" separator="," close=")">
+                #{imgName}
+            </foreach>
+    </delete>
+</mapper>

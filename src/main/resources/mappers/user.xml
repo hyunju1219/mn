@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.meongnyang.shop.repository.UserMapper">
+
+    <sql id="searchOptionIf" >
+        1 = 1
+            and r.role_name = 'ROLE_USER'
+        <if test='option.equals("all")'>
+            and(
+                u.username like concat('%', trim(ifnull(#{searchWord}, '')), "%")
+                or u.name like concat('%', trim(ifnull(#{searchWord}, '')), "%")
+                or ml.membership_level_name like concat('%', trim(ifnull(#{searchWord}, '')), "%")
+            )
+        </if>
+        <if test='option.equals("id")'>
+            and(
+                u.username like concat('%', trim(ifnull(#{searchWord}, '')), "%")
+            )
+        </if>
+        <if test='option.equals("name")'>
+            and(
+                u.name like concat('%', trim(ifnull(#{searchWord}, '')), "%")
+            )
+        </if>
+        <if test='option.equals("membership")'>
+            and(
+                ml.membership_level_name like concat('%', trim(ifnull(#{searchWord}, '')), "%")
+            )
+        </if>
+    </sql>
+
+    <resultMap id="userResultMap" type="com.meongnyang.shop.entity.User">
+        <id property="id" column="u_id"/>
+        <result property="username" column="username" />
+        <result property="password" column="password" />
+        <result property="name" column="name" />
+        <result property="phone" column="phone" />
+        <result property="createDate" column="create_date" />
+        <result property="membershipLevelId" column="membership_level_id" />
+        <result property="provider" column="provider" />
+        <result property="recentPurchaseDate" column="recent_purchase_date" />
+        <association property="address" resultMap="addressResultMap" />
+        <association property="pet" resultMap="petResultMap" />
+        <association property="membership" resultMap="membershipResultMap" />
+        <association property="orders" resultMap="orderResultMap" />
+        <collection property="userRoles" javaType="java.util.Set" resultMap="userRoleResultMap" />
+    </resultMap>
+
+    <resultMap id="userDetailResultMap" type="com.meongnyang.shop.entity.User">
+        <id property="id" column="u_id"/>
+        <result property="username" column="username" />
+        <result property="name" column="name" />
+        <result property="phone" column="phone" />
+        <result property="createDate" column="create_date" />
+        <result property="membershipLevelId" column="membership_level_id" />
+        <result property="provider" column="provider" />
+        <association property="address" resultMap="addressResultMap" />
+        <association property="membership" resultMap="membershipResultMap" />
+        <collection property="userRoles" javaType="java.util.Set" resultMap="userRoleResultMap" />
+    </resultMap>
+
+    <resultMap id="addressResultMap" type="com.meongnyang.shop.entity.Address">
+        <id property="id" column="a_id" />
+        <result property="userId" column="a_user_id" />
+        <result property="zipcode" column="zipcode" />
+        <result property="addressDefault" column="address_default" />
+        <result property="addressDetail" column="address_detail" />
+        <result property="request" column="request" />
+    </resultMap>
+
+    <resultMap id="petResultMap" type="com.meongnyang.shop.entity.Pet">
+        <id property="id" column="p_id" />
+        <result property="userId" column="p_user_id" />
+        <result property="petName" column="pet_name" />
+        <result property="petAge" column="pet_age" />
+        <result property="petType" column="pet_type" />
+    </resultMap>
+
+    <resultMap id="userRoleResultMap" type="com.meongnyang.shop.entity.UserRole">
+        <id property="id" column="ur_id" />
+        <result property="userId" column="ur_user_id"/>
+        <result property="roleId" column="ur_role_id"/>
+        <association property="role" resultMap="roleResultMap" />
+    </resultMap>
+
+    <resultMap id="roleResultMap" type="com.meongnyang.shop.entity.Role">
+        <id property="id" column="r_id" />
+        <result property="roleName" column="r_role_name" />
+    </resultMap>
+
+    <resultMap id="membershipResultMap" type="com.meongnyang.shop.entity.Membership">
+        <id property="id" column="ml_id" />
+        <result property="membershipLevelName" column="membership_level_name" />
+    </resultMap>
+
+    <resultMap id="orderResultMap" type="com.meongnyang.shop.entity.Order" >
+        <id property="id" column="o_id"/>
+        <result property="userId" column="user_id" />
+        <result property="totalPrice" column="total_price" />
+        <result property="orderItemCount" column="order_item_count" />
+        <result property="orderDate" column="order_date" />
+        <result property="orderStatus" column="order_status" />
+        <result property="orderName" column="order_name" />
+        <result property="zipcode" column="zipcode" />
+        <result property="addressDefault" column="address_default" />
+        <result property="addressDetail" column="address_detail" />
+        <result property="phone" column="phone" />
+        <collection property="orderDetails" javaType="java.util.List" resultMap="orderDetailResultMap" />
+    </resultMap>
+
+    <resultMap id="orderDetailResultMap" type="com.meongnyang.shop.entity.OrderDetail" >
+        <id property="id" column="od_id"/>
+        <result property="orderId" column="order_id" />
+        <result property="productId" column="product_id" />
+        <result property="productPrice" column="product_total_price" />
+        <result property="productCount" column="product_count" />
+        <association property="product" resultMap="productResultMap" />
+    </resultMap>
+
+    <resultMap id="productResultMap" type="com.meongnyang.shop.entity.Product" >
+        <id property="id" column="o_id"/>
+        <result property="productName" column="product_name" />
+        <result property="productPrice" column="product_price" />
+    </resultMap>
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        insert into user_tb
+        values(default, #{username}, #{password}, #{name}, #{phone}, default, now(), #{provider})
+    </insert>
+
+    <select id="findUserByUsername" resultMap="userResultMap">
+        select
+            u.id as u_id,
+            u.username,
+            u.password,
+            u.name,
+            u.phone,
+            u.membership_level_id,
+            u.create_date,
+            u.provider,
+            ur.id as ur_id,
+            ur.user_id as ur_user_id,
+            ur.role_id as ur_role_id,
+            r.id as r_id,
+            r.role_name as r_role_name,
+            ml.id as ml_id,
+            ml.membership_level_name
+        from
+            user_tb u
+            left outer join user_role_tb ur on(u.id = ur.user_id)
+            left outer join role_tb r on(r.id = ur.role_id)
+            left outer join membership_level_tb ml on(ml.id = u.membership_level_id)
+        where
+            username = #{username}
+    </select>
+    <select id="findUserById" resultMap="userResultMap">
+        select
+            u.id as u_id,
+            u.username,
+            u.password,
+            u.name,
+            u.phone,
+            u.membership_level_id,
+            u.create_date,
+            u.provider,
+            ur.id as ur_id,
+            ur.user_id as ur_user_id,
+            ur.role_id as ur_role_id,
+            r.id as r_id,
+            r.role_name as r_role_name,
+            ml.id as ml_id,
+            ml.membership_level_name
+        from
+            user_tb u
+            left outer join user_role_tb ur on(u.id = ur.user_id)
+            left outer join role_tb r on(r.id = ur.role_id)
+            left outer join membership_level_tb ml on(ml.id = u.membership_level_id)
+        where
+            u.id = #{id}
+    </select>
+    <select id="findAll" resultMap="userResultMap">
+        select
+            u.id as u_id,
+            u.username,
+            u.password,
+            u.name,
+            u.phone,
+            u.membership_level_id,
+            u.create_date,
+            u.provider,
+            a.id as a_id,
+            a.user_id as a_user_id,
+            a.zipcode,
+            a.address_default,
+            a.address_detail,
+            a.request,
+            p.id as p_id,
+            p.user_id as p_user_id,
+            p.pet_name,
+            p.pet_age,
+            p.pet_type,
+            ur.id as ur_id,
+            ur.user_id as ur_user_id,
+            ur.role_id as ur_role_id,
+            r.id as r_id,
+            r.role_name as r_role_name,
+            ml.id as ml_id,
+            ml.membership_level_name
+        from
+            user_tb u
+            left outer join user_role_tb ur on(u.id = ur.user_id)
+            left outer join address_tb a on(u.id = a.user_id)
+            left outer join pet_tb p on(u.id = p.user_id)
+            left outer join role_tb r on(r.id = ur.role_id)
+            left outer join membership_level_tb ml on(ml.id = u.membership_level_id)
+    </select>
+    <select id="findUserByOption" resultMap="userResultMap">
+        select
+            u.id as u_id,
+            u.username,
+            u.password,
+            u.name,
+            u.phone,
+            u.membership_level_id,
+            u.create_date,
+            u.provider,
+            ur.id as ur_id,
+            ur.user_id as ur_user_id,
+            ur.role_id as ur_role_id,
+            r.id as r_id,
+            r.role_name as r_role_name,
+            ml.id as ml_id,
+            ml.membership_level_name,
+            max(ot.order_date) recent_purchase_date
+        from
+            user_tb u
+            left outer join user_role_tb ur on(u.id = ur.user_id)
+            left outer join role_tb r on(r.id = ur.role_id)
+            left outer join membership_level_tb ml on(ml.id = u.membership_level_id)
+            left outer join order_tb ot on(ot.user_id = u.id)
+        where
+            <include refid="searchOptionIf" />
+        group by
+            u_id
+        limit #{startIndex}, #{limit}
+
+    </select>
+    <select id="findUserDetailById" resultMap="userDetailResultMap">
+        select
+            u.id as u_id,
+            u.username,
+            u.password,
+            u.name,
+            u.phone,
+            u.membership_level_id,
+            u.create_date,
+            u.provider,
+            a.id as a_id,
+            a.user_id as a_user_id,
+            a.zipcode,
+            a.address_default,
+            a.address_detail,
+            a.request,
+            ml.id as ml_id,
+            ml.membership_level_name,
+            o.id as o_id,
+            o.user_id,
+            o.total_price,
+            o.order_item_count,
+            o.order_date,
+            o.order_status,
+            o.order_name,
+            o.zipcode,
+            o.address_default,
+            o.address_detail,
+            o.phone,
+            od.id as od_id,
+            od.order_id,
+            od.product_id,
+            od.product_price as product_total_price,
+            od.product_count,
+            p.id as p_id,
+            p.product_name,
+            p.product_price
+        from
+            user_tb u
+            left outer join address_tb a on(u.id = a.user_id)
+            left outer join membership_level_tb ml on(ml.id = u.membership_level_id)
+            left outer join order_tb o on(o.user_id = u.id)
+            left outer join order_detail_tb od on(o.id = od.order_id)
+            left outer join product_tb p on(od.product_id = p.id)
+        where
+            u.id = #{id}
+    </select>
+    <select id="findUserPurchaseDateById" resultType="com.meongnyang.shop.dto.response.admin.RespGetUserDetailDto$UserPurchaseData">
+        select
+            min(o.order_date) as initialPurchaseDate,
+            max(o.order_date) as recentlyPurchaseDate,
+            sum(o.total_price) as totalPrice
+        from
+            user_tb u
+            left outer join order_tb o on(o.user_id = u.id)
+        where
+            u.id = #{id}
+    </select>
+    <select id="getDashboardCustomer" resultType="com.meongnyang.shop.dto.response.admin.RespDashboardDto">
+        select
+            count(id) totalCustomerCount,
+            sum(case when date(create_date) = date(now()) then 1 else 0 end) todayJoinCustomerCount
+        from
+            user_tb;
+    </select>
+    <select id="getCountByOption" resultType="java.lang.Integer">
+        select
+            count(*)
+        from
+            user_tb u
+            left outer join user_role_tb ur on(u.id = ur.user_id)
+            left outer join role_tb r on(r.id = ur.role_id)
+            left outer join membership_level_tb ml on(ml.id = u.membership_level_id)
+        where
+            <include refid="searchOptionIf" />
+    </select>
+    <select id="findUserMembershipLevel" resultType="com.meongnyang.shop.entity.User">
+        select
+            id,
+            membership_level_id membershipLevelId
+        from
+            user_tb
+        where
+            id = #{id};
+    </select>
+
+    <update id="updateUserMembershipById">
+        update
+            user_tb
+        set
+            membership_level_id = #{membershipId}
+        where
+            id = #{id}
+    </update>
+</mapper>

@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.meongnyang.shop.repository.OrderMapper">
+
+    <sql id="searchOptionIf">
+        <if test='option.equals("all")'>
+            and (
+                o.id like concat('%', trim(ifnull(#{searchWord}, '')), '%')
+                or DATE(o.order_date) between #{startDate} and #{endDate}
+                or od.product_id like concat('%', trim(ifnull(#{searchWord}, '')), '%')
+                or p.product_name like concat('%', trim(ifnull(#{searchWord}, '')), '%')
+                or o.order_status like concat('%', trim(ifnull(#{searchWord}, '')), '%')
+            )
+        </if>
+        <if test='option.equals("number")'>
+            and (
+                o.id like concat('%', trim(ifnull(#{searchWord}, '')), "%")
+            )
+        </if>
+        <if test='option.equals("date")'>
+            and (
+                DATE(o.order_date) between #{startDate} and #{endDate}
+            )
+        </if>
+        <if test='option.equals("productId")'>
+            and (
+                od.product_id like concat('%', trim(ifnull(#{searchWord}, '')), "%")
+            )
+        </if>
+        <if test='option.equals("productName")'>
+            and (
+                p.product_name like concat('%', trim(ifnull(#{searchWord}, '')), "%")
+            )
+        </if>
+        <if test='option.equals("status")'>
+            and (
+                o.order_status like concat('%', trim(ifnull(#{searchWord}, '')), "%")
+            )
+        </if>
+    </sql>
+
+    <resultMap id="orderResultMap" type="com.meongnyang.shop.entity.Order" >
+        <id property="id" column="o_id"/>
+        <result property="userId" column="user_id" />
+        <result property="totalPrice" column="total_price" />
+        <result property="orderItemCount" column="order_item_count" />
+        <result property="orderDate" column="order_date" />
+        <result property="orderStatus" column="order_status" />
+        <result property="orderName" column="order_name" />
+        <result property="zipcode" column="zipcode" />
+        <result property="addressDefault" column="address_default" />
+        <result property="addressDetail" column="address_detail" />
+        <result property="phone" column="phone" />
+        <collection property="orderDetails" resultMap="orderDetailResultMap" />
+    </resultMap>
+
+    <resultMap id="adminOrderDetailResultMap" type="com.meongnyang.shop.entity.Order">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id" />
+        <result property="totalPrice" column="total_price" />
+        <result property="orderItemCount" column="order_item_count" />
+        <result property="orderDate" column="order_date" />
+        <result property="orderStatus" column="order_status" />
+        <result property="orderName" column="order_name" />
+        <result property="zipcode" column="zipcode" />
+        <result property="addressDefault" column="address_default" />
+        <result property="addressDetail" column="address_detail" />
+        <result property="phone" column="phone" />
+        <result property="paymentType" column="payment_type" />
+        <result property="request" column="request" />
+        <association property="payment" resultMap="paymentResultMap"/>
+        <collection property="orderDetails" resultMap="orderDetailResultMap" />
+    </resultMap>
+
+    <resultMap id="orderDetailResultMap" type="com.meongnyang.shop.entity.OrderDetail" >
+        <id property="id" column="od_id"/>
+        <result property="orderId" column="order_id" />
+        <result property="productId" column="product_id" />
+        <result property="productPrice" column="product_total_price" />
+        <result property="productCount" column="product_count" />
+        <association property="product" resultMap="productResultMap" />
+    </resultMap>
+
+    <resultMap id="productResultMap" type="com.meongnyang.shop.entity.Product" >
+        <id property="id" column="product_id"/>
+        <result property="productName" column="product_name" />
+        <result property="productPrice" column="product_price" />
+    </resultMap>
+
+    <resultMap id="userResultMap" type="com.meongnyang.shop.entity.User">
+        <id property="id" column="u_id"/>
+        <result property="username" column="username" />
+        <result property="password" column="password" />
+        <result property="name" column="name" />
+        <result property="phone" column="phone" />
+        <result property="membershipLevelId" column="membership_level_id" />
+        <result property="provider" column="provider" />
+    </resultMap>
+
+    <resultMap id="paymentResultMap" type="com.meongnyang.shop.entity.Payment" >
+        <id property="id" column="payment_type" />
+        <result property="paymentName" column="payment_name" />
+    </resultMap>
+
+    <delete id="deleteOrderById">
+        delete
+        from
+            order_tb
+        where
+            id = #{id}
+    </delete>
+    <delete id="deleteOrderAll">
+        delete from order_tb;
+    </delete>
+    <select id="findOrderAll" resultMap="orderResultMap">
+        select
+            o.id as o_id,
+            o.user_id,
+            o.total_price,
+            o.order_item_count,
+            o.order_date,
+            o.order_status,
+            o.order_name,
+            o.zipcode,
+            o.address_default,
+            o.address_detail,
+            o.phone,
+            od.id as od_id,
+            od.order_id,
+            od.product_id,
+            od.product_price as product_total_price,
+            od.product_count,
+            p.id as p_id,
+            p.product_name,
+            p.product_price
+        from
+            order_tb o
+            left outer join order_detail_tb od on(o.id = od.order_id)
+            left outer join product_tb p on(od.product_id = p.id)
+
+    </select>
+    <select id="getOrderByOption" resultMap="orderResultMap">
+        select
+            o.id as o_id,
+            o.user_id,
+            o.total_price,
+            o.order_item_count,
+            o.order_date,
+            o.order_status,
+            o.order_name,
+            o.zipcode,
+            o.address_default,
+            o.address_detail,
+            o.phone,
+            od.id as od_id,
+            od.order_id,
+            od.product_id,
+            od.product_price as product_total_price,
+            od.product_count,
+            p.id as p_id,
+            p.product_name,
+            p.product_price
+        from
+            order_tb o
+            left outer join order_detail_tb od on(o.id = od.order_id)
+            left outer join product_tb p on(od.product_id = p.id)
+        where
+            1 = 1
+            <include refid="searchOptionIf" />
+        order by
+            o.id desc,
+            od.id desc
+        limit #{startIndex}, #{limit}
+
+    </select>
+    <select id="getOrderDetailProductsById" resultType="com.meongnyang.shop.dto.response.admin.RespGetUserDetailDto$RespUserDetailProductDto">
+        select
+            odt.product_id,
+            pt.product_name,
+            sum(odt.product_count) as product_order_count,
+            pt.product_price,
+            sum(pt.product_price * odt.product_count) as total_order_price,
+            max(ot.order_date) as last_order_date
+        from
+            order_detail_tb odt
+            left outer join order_tb ot on(ot.id = odt.order_id)
+            left outer join product_tb pt on(odt.product_id = pt.id)
+        where
+            ot.user_id = #{id}
+        group by
+            odt.product_id,
+            pt.product_name,
+            pt.product_price
+        limit 0, 6
+    </select>
+    <select id="getOrderCountByOption" resultType="java.lang.Integer">
+        select
+            count(*)
+        from (
+            select
+                count(*),
+                o.id
+            from
+                order_tb o
+                left outer join order_detail_tb od on(o.id = od.order_id)
+                left outer join product_tb p on(od.product_id = p.id)
+            where
+                1 = 1
+                <include refid="searchOptionIf" />
+            group by
+                o.id
+        ) as orderList
+    </select>
+    <select id="getProductCountByOption" resultType="java.lang.Integer">
+        select
+            count(*)
+        from
+            order_tb o
+            left outer join order_detail_tb od on(o.id = od.order_id)
+            left outer join product_tb p on(od.product_id = p.id)
+        where
+            1 = 1
+            <include refid="searchOptionIf" />
+    </select>
+    <select id="getOrderDetail" resultMap="adminOrderDetailResultMap">
+        select
+            o.id,
+            o.user_id,
+            o.total_price,
+            o.order_item_count,
+            o.order_date,
+            o.order_status,
+            o.order_name,
+            o.zipcode,
+            o.address_default,
+            o.address_detail,
+            o.phone,
+            o.payment_type,
+            o.request,
+            od.product_id,
+            od.product_count,
+            od.product_price,
+            p.payment_name,
+            pt.product_name
+        from
+            order_tb o
+            left outer join order_detail_tb od on(o.id = od.order_id)
+            left outer join payment_tb p on(o.payment_type = p.id)
+            left outer join product_tb pt on(od.product_id = pt.id)
+        where
+            o.id = #{id}
+        order by
+            o.order_date desc
+    </select>
+    <select id="getRecentOrderDate" resultType="java.time.LocalDate">
+        select
+            order_date
+        from
+            order_tb
+        where
+            user_id = #{userId}
+        order by
+            order_date desc
+        limit
+            1;
+    </select>
+    <select id="getSummaryStatisticsByDate" resultType="com.meongnyang.shop.dto.response.admin.RespStatisticsDto$SummaryStatistics">
+        select
+            order_date as orderDate,
+            order_status as orderStatus,
+            sum(total_price) as totalPrice,
+            sum(order_item_count) as totalCount
+        from
+            order_tb ot
+        where
+            order_status = '구매확정'
+            and date(order_date) between date(#{startDate}) and date(#{endDate})
+        group by
+            date(order_date)
+        union all
+        select
+            order_date as orderDate,
+            order_status as orderStatus,
+            sum(total_price) as totalPrice,
+            sum(order_item_count) as totalCount
+        from
+            order_tb ot
+        where
+            order_status = '환불완료'
+            and date(order_date) between date(#{startDate}) and date(#{endDate})
+        group by
+            date(order_date);
+    </select>
+
+    <select id="getStatisticsDailyByDate" resultType="com.meongnyang.shop.dto.response.admin.RespStatisticsDto">
+        select
+            min(dailyAmount) as minDailyAmount,
+            avg(dailyAmount) as avgDailyAmount,
+            max(dailyAmount) as maxDailyAmount
+        from
+            (select
+                order_date,
+                sum(total_price) as dailyAmount
+            from
+                order_tb
+            where
+                order_date between #{startDate} and #{endDate} and order_status = "구매확정"
+            group by
+                order_date) as amout_tb
+    </select>
+    <select id="getBestProductCountByDate"
+            resultType="com.meongnyang.shop.dto.response.admin.RespStatisticsDto$BestProductCount">
+        select
+            odt.product_id productId,
+            pt.product_name productName,
+            sum(odt.product_price * product_count) productPrice,
+            sum(odt.product_count) productCount
+        from
+            order_tb ot
+            left outer join order_detail_tb odt on(ot.id = odt.order_id)
+            left outer join product_tb pt on(odt.product_id = pt.id)
+        where
+            date(order_date) between date(#{startDate}) and date(#{endDate})
+        group by
+            odt.product_id
+        order by
+            productCount desc
+        limit 0, 5
+    </select>
+    <select id="getBestProductAmountByDate"
+            resultType="com.meongnyang.shop.dto.response.admin.RespStatisticsDto$BestProductAmount">
+        select
+            odt.product_id productId,
+            pt.product_name productName,
+            sum(odt.product_price * product_count) productPrice,
+            sum(odt.product_count) productCount
+        from
+            order_tb ot
+            left outer join order_detail_tb odt on(ot.id = odt.order_id)
+            left outer join product_tb pt on(odt.product_id = pt.id)
+        where
+            date(order_date) between date(#{startDate}) and date(#{endDate})
+        group by
+            odt.product_id
+        order by
+            productPrice desc
+        limit 0, 5
+    </select>
+    <select id="getDashboardData" resultType="com.meongnyang.shop.dto.response.admin.RespDashboardDto">
+        select
+            ifnull(sum(if(order_status = '구매확정', total_price, 0)), 0) totalPrice,
+            ifnull(sum(if(order_status = '구매확정', order_item_count, 0)), 0) totalCount,
+            ifnull(sum(if(order_status = '환불완료', total_price, 0)), 0) refundPrice,
+            ifnull(sum(if(order_status = '환불완료', order_item_count, 0)), 0) refundCount,
+            ifnull(sum(if(order_status = '구매확정' and date(order_date) = curdate(), total_price, 0)), 0) todayTotalPrice,
+            ifnull(sum(if(order_status = '구매확정' and date(order_date) = curdate(), order_item_count, 0)), 0) todayTotalCount,
+            ifnull(sum(if(order_status = '환불완료' and date(order_date) = curdate(), total_price, 0)), 0) todayRefundPrice,
+            ifnull(sum(if(order_status = '환불완료' and date(order_date) = curdate(), order_item_count, 0)), 0) todayRefundCount
+        from
+            order_tb;
+    </select>
+    <select id="getDashboardOrderStatus"
+            resultType="com.meongnyang.shop.dto.response.admin.RespDashboardDto$OrderStatus">
+        select
+            order_name orderName,
+            order_date orderDate,
+            order_status orderStatus
+        from
+            order_tb
+        order by
+            id desc
+        limit 0, 7;
+    </select>
+    <select id="getDashboardStatisticsStatus"
+            resultType="com.meongnyang.shop.dto.response.admin.RespDashboardDto$StatisticsStatus">
+        with recursive seven_day as (
+            select
+                curdate() - interval 6 day as date_value
+            union all
+            select
+                date_value + interval 1 day
+            from
+                seven_day
+            where
+                date_value + interval 1 day <![CDATA[<=]]> curdate()
+        )
+        select
+            sd.date_value as `date`,
+            ifnull(sum(if(ot.order_status = '구매확정', 1, 0)), 0) as ordercount,
+            ifnull(sum(if(ot.order_status = '구매확정', ot.total_price, 0)), 0) as orderamount,
+            ifnull(sum(if(ot.order_status = '환불완료', 1, 0)), 0) as refundcount,
+            ifnull(sum(if(ot.order_status = '환불완료', ot.total_price, 0)), 0) as refundamount
+        from
+            seven_day sd
+            left join order_tb ot on date(ot.order_date) = sd.date_value
+        group by
+            sd.date_value
+        order by
+            sd.date_value desc;
+    </select>
+    <select id="getUserTotalAmount" resultType="com.meongnyang.shop.entity.Order">
+        select
+            user_id userId,
+            sum(total_price) totalPrice
+        from
+            order_tb
+        where
+            date_add(order_date, interval 30 day) > now()
+        group by
+            user_id
+    </select>
+</mapper>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.meongnyang.shop.repository.user.UserOrderDetailMapper">
+    <resultMap id="orderDetailResultMap" type="com.meongnyang.shop.entity.OrderDetail">
+        <id property="id" column="od_id"/>
+        <result property="orderId" column="order_id" />
+        <result property="productId" column="product_id" />
+        <result property="productPrice" column="od_product_price" />
+        <result property="productCount" column="product_count" />
+        <association property="product" resultMap="productResultMap" />
+    </resultMap>
+
+    <resultMap id="productResultMap" type="com.meongnyang.shop.entity.Product">
+        <id property="id" column="p_id"/>
+        <result property="productName" column="product_name" />
+        <result property="productPrice" column="p_product_price" />
+        <association property="petGroup" resultMap="petGroupResultMap" />
+        <association property="category" resultMap="categoryResultMap" />
+        <collection property="imgUrls" resultMap="imgUrlResultMap"/>
+    </resultMap>
+
+    <resultMap id="imgUrlResultMap" type="com.meongnyang.shop.entity.ImgUrl" >
+        <id property="id" column="iu_id" />
+        <result property="productId" column="iu_product_id" />
+        <result property="imgPath" column="img_path" />
+        <result property="imgName" column="img_name" />
+    </resultMap>
+
+    <resultMap id="petGroupResultMap" type="com.meongnyang.shop.entity.PetGroup" >
+        <id property="id" column="pg_id" />
+        <result property="categoryGroupName" column="category_group_name" />
+    </resultMap>
+
+    <resultMap id="categoryResultMap" type="com.meongnyang.shop.entity.Category" >
+        <id property="id" column="c_id" />
+        <result property="categoryName" column="category_name" />
+    </resultMap>
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        insert into order_detail_tb
+        values(default, #{orderId}, #{productId}, #{productPrice}, #{productCount})
+    </insert>
+
+    <select id="findOrderDetailByOrderId" resultMap="orderDetailResultMap">
+        select
+            od.id as od_id,
+            od.order_id,
+            od.product_id,
+            od.product_price od_product_price,
+            od.product_count,
+            p.id as p_id,
+            p.product_name,
+            p.product_price as p_product_price,
+            pg.id as pg_id,
+            pg.category_group_name,
+            c.id as c_id,
+            c.category_name,
+            iu.id as iu_id,
+            iu.product_id as iu_product_id,
+            iu.img_path,
+            iu.img_name
+        from
+            order_detail_tb od
+            left outer join product_tb p on(p.id = od.product_id)
+            left outer join pet_group_tb pg on(p.pet_group_id = pg.id)
+            left outer join category_tb c on(p.category_id = c.id)
+            left outer join img_url_tb iu on(p.id = iu.product_id)
+        where
+            order_id = #{orderId}
+    </select>
+    <select id="findOrderProductIdByOrderId" resultType="com.meongnyang.shop.entity.OrderDetail">
+        select
+            id,
+            product_id as productId,
+            product_count as productCount
+        from
+            order_detail_tb
+        where
+            order_id = #{orderId}
+    </select>
+
+</mapper>
