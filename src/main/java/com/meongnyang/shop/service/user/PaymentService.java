@@ -16,4 +16,8 @@ public class PaymentService {
     public List<Payment> getPayments() {
         return  paymentMapper.findAll();
     }
+
+    public Payment getPaymentMethod(String paymentMethod) {
+        return paymentMapper.findPaymentMethodByName(paymentMethod);
+    }
 }
