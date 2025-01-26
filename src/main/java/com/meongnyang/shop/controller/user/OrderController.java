@@ -18,7 +18,6 @@ public class OrderController {
     // 주문 등록
     @PostMapping("/order")
     public ResponseEntity<?> postProductsOrder(@RequestBody ReqPostOrderDto dto) {
-        System.out.println(dto);
         orderService.postProductsOrder(dto);
         return ResponseEntity.ok().body(true);
     }

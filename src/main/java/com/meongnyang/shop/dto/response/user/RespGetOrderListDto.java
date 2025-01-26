@@ -32,7 +32,6 @@ public class RespGetOrderListDto {
         private String request;
         private String paymentTypeName;
         private List<OrderDetail> orderDetailList;
-
     }
 
     @Data
