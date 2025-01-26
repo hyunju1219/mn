@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 //@EnableScheduling
@@ -79,68 +80,44 @@ public class OrderService {
         }
     }
 
-    private Long registerOrder(ReqPostOrderDto dto, int paymentId ) {
-        Order order = dto.toEntity(paymentId);
-        userOrderMapper.save(order);
-        return order.getId();
-    }
-
-    private Long registerOrderDetail(ReqPostOrderDto.ProductEasy product, Long orderId) {
-            OrderDetail orderDetail = OrderDetail.builder()
-                    .orderId(orderId)
-                    .productId(product.getProductId())
-                    .productPrice(product.getProductPrice())
-                    .productCount(Long.valueOf(product.getProductCount()))
-                    .build();
-            userOrderDetailMapper.save(orderDetail);
-
-            return orderDetail.getId();
-    }
-
-    private void modifyOrder(ReqModifyOrderDto dto) {
-        Map<String, Object> params = Map.of(
-                "userId", dto.getUserId(),
-                "id", dto.getId(),
-                "orderStatus", dto.getOrderStatus()
-        );
-        userOrderMapper.modifyOrder(params);
-    }
-
-    private List<OrderDetail> getOrderDetailByOrderId(Long orderId) {
-        return userOrderDetailMapper.findOrderProductIdByOrderId(orderId);
-    }
-
     //주문/배송 내역 조회
     public RespGetOrderListDto getOrderList (ReqGetOrderListDto dto){
-        Long startIndex = (dto.getPage() - 1) * dto.getLimit();
-        Map<String, Object> params = Map.of(
-                "userId", dto.getUserId(),
-                "startIndex", startIndex,
-                "limit", dto.getLimit(),
-                "paymentSelect", dto.getPaymentSelect(),
-                "startDate", dto.getStartDate(),
-                "endDate", dto.getEndDate()
-        );
+        Map<String, Object> params = createParamsMap(dto);
 
-        List<Order> orderList = userOrderMapper.findAllOrders(params);
-        List<RespGetOrderListDto.OrderList> orderListDtos = new ArrayList<>();
+        List<Order> orders = userOrderMapper.findAllOrders(params);
 
-        for (Order order : orderList) {
-            List<OrderDetail> orderDetailList = userOrderDetailMapper.findOrderDetailByOrderId(order.getId());
-            RespGetOrderListDto.OrderList orderList1 = order.toDto();
-            List<RespGetOrderListDto.OrderDetail> orderDetails = new ArrayList<>();
-
-            for (OrderDetail orderDetail : orderDetailList) {
-                orderDetails.add(orderDetail.toDto());
-            }
-            orderList1.setOrderDetailList(orderDetails);
-            orderListDtos.add(orderList1);
-        }
+        List<RespGetOrderListDto.OrderList> orderListDtos = orders.stream().
+                map(this::convertToOrderListDto)
+                .collect(Collectors.toList());
 
         return RespGetOrderListDto.builder()
                 .orderList(orderListDtos)
                 .orderListCount(orderListDtos.size())
                 .build();
+    }
+
+    private RespGetOrderListDto.OrderList convertToOrderListDto(Order order) {
+        // 주문 상세 목록 조회 및 변환
+        List<OrderDetail> orderDetails = userOrderDetailMapper.findOrderDetailByOrderId(order.getId());
+        List<RespGetOrderListDto.OrderDetail> orderDetailDtos = orderDetails.stream()
+                .map(OrderDetail::toDto)
+                .collect(Collectors.toList());
+
+        // OrderList DTO 생성
+        RespGetOrderListDto.OrderList orderListDto = order.toDto();
+        orderListDto.setOrderDetailList(orderDetailDtos);
+        return orderListDto;
+    }
+
+    private Map<String, Object> createParamsMap(ReqGetOrderListDto dto) {
+        return Map.of(
+                "userId", dto.getUserId(),
+                "startIndex", (dto.getPage() - 1) * dto.getLimit(),
+                "limit", dto.getLimit(),
+                "paymentSelect", dto.getPaymentSelect(),
+                "startDate", dto.getStartDate(),
+                "endDate", dto.getEndDate()
+        );
     }
 
     public int getOrderListCount() {
@@ -158,5 +135,36 @@ public class OrderService {
             List<OrderDetail> orderDetailList = getOrderDetailByOrderId(dto.getId());
             userStockService.processModifyStock(orderDetailList, dto.getOrderStatus());
         }
+    }
+
+    private Long registerOrder(ReqPostOrderDto dto, int paymentId) {
+        Order order = dto.toEntity(paymentId);
+        userOrderMapper.save(order);
+        return order.getId();
+    }
+
+    private Long registerOrderDetail(ReqPostOrderDto.ProductEasy product, Long orderId) {
+        OrderDetail orderDetail = OrderDetail.builder()
+                .orderId(orderId)
+                .productId(product.getProductId())
+                .productPrice(product.getProductPrice())
+                .productCount(Long.valueOf(product.getProductCount()))
+                .build();
+        userOrderDetailMapper.save(orderDetail);
+
+        return orderDetail.getId();
+    }
+
+    private void modifyOrder(ReqModifyOrderDto dto) {
+        Map<String, Object> params = Map.of(
+                "userId", dto.getUserId(),
+                "id", dto.getId(),
+                "orderStatus", dto.getOrderStatus()
+        );
+        userOrderMapper.modifyOrder(params);
+    }
+
+    private List<OrderDetail> getOrderDetailByOrderId(Long orderId) {
+        return userOrderDetailMapper.findOrderProductIdByOrderId(orderId);
     }
 }
