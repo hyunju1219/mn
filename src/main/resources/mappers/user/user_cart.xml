@@ -130,9 +130,9 @@
         WHERE
             user_id = #{userId}
             AND id in
-            <foreach item="id" collection="cartIds" open="(" separator="," close=")">
-                #{id}
-            </foreach>
+                <foreach item="cartId" collection="cartIds" open="(" separator="," close=")">
+                    #{cartId}
+                </foreach>
     </select>
     <select id="findCartIdByUserId" resultMap="cartResultMap">
         select

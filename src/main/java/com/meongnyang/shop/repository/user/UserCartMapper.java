@@ -12,7 +12,6 @@ public interface UserCartMapper {
     int saveCart(Cart cart);
     List<Cart> getCart(Map<String, Object> params);
     int findCartCount(Long userId);
-    Long deleteCartAll (List<Long> userIds);
     int deleteCartById(List<Long> idList);
     Cart findCartByUserProductId(Long userId,Long productId);
     int updateCart(Cart cart);
