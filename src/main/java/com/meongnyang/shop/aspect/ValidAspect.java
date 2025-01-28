@@ -41,6 +41,7 @@ public class ValidAspect {
                 break;
             }
         }
+
         switch (joinPoint.getSignature().getName()) {
             case "signup":
                 signupValid(args, bindingResult);

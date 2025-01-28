@@ -1,6 +1,7 @@
 package com.meongnyang.shop.controller.user;
 
 import com.meongnyang.shop.aspect.annotation.ValidAop;
+import com.meongnyang.shop.aspect.annotation.ValidUserAop;
 import com.meongnyang.shop.dto.request.user.ReqUpdatePasswordDto;
 import com.meongnyang.shop.dto.request.user.ReqUpdatePetDto;
 import com.meongnyang.shop.dto.request.user.ReqUpdateUserDto;
@@ -22,13 +23,13 @@ public class MyPageController {
     @Autowired
     private UserService userService;
 
-    // 회원정보 조회
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getUser(@PathVariable Long userId) {
         return ResponseEntity.ok().body(userService.getUserInfo(userId));
     }
 
     // 회원정보 수정
+    @ValidUserAop
     @PutMapping("/user/{userId}")
     public ResponseEntity<?> updateUser(@RequestBody ReqUpdateUserDto dto) {
         System.out.println("수정요청" + dto);
@@ -36,7 +37,6 @@ public class MyPageController {
         return ResponseEntity.ok().body(true);
     }
 
-    // 비밀번호 수정
     @ValidAop
     @PutMapping("/edit/password")
     public ResponseEntity<?> editPassword(@Valid @RequestBody ReqUpdatePasswordDto dto, BindingResult bindingResult) {
@@ -44,7 +44,7 @@ public class MyPageController {
         return ResponseEntity.ok().body(true);
     }
 
-    // 반려동물정보 수정
+    @ValidUserAop
     @PutMapping("/user/pet/{userId}")
     public ResponseEntity<?> modifyPet(@RequestBody ReqUpdatePetDto dto) {
         System.out.println(dto);

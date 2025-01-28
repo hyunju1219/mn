@@ -1,5 +1,6 @@
 package com.meongnyang.shop.controller.user;
 
+import com.meongnyang.shop.aspect.annotation.ValidUserAop;
 import com.meongnyang.shop.dto.request.user.*;
 import com.meongnyang.shop.service.user.UserCartService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,20 +13,21 @@ public class CartController {
     @Autowired
     private UserCartService userCartService;
 
-    // 장바구니 물품 추가
+    @ValidUserAop
     @PostMapping("/user/cart")
     public ResponseEntity<?> saveProductCart(@RequestBody ReqPostCartDto dto) {
         userCartService.addCartItem(dto);
         return ResponseEntity.ok().body(true);
     }
 
+    @ValidUserAop
     @PutMapping("/user/{cartId}/count")
     public ResponseEntity<?> modifyCartItemCount(@RequestBody ReqModifyCartItemDto dto) {
         userCartService.changeCartItemCount(dto);
         return ResponseEntity.ok().body(true);
     }
 
-    // 장바구니 내역 조회
+    @ValidUserAop
     @GetMapping("/user/cart")
     public ResponseEntity<?> getCartAll(ReqGetCartAllDto dto) {
         return ResponseEntity.ok().body(userCartService.getCartAll(dto));
@@ -36,20 +38,13 @@ public class CartController {
         return ResponseEntity.ok().body(userCartService.getCartIdAll(userId));
     }
 
-    // 장바구니 내역 갯수 조회
+    @ValidUserAop
     @GetMapping("/user/cart/count")
     public ResponseEntity<?> getCartAllCount(ReqGetCartAllCountDto dto) {
         return ResponseEntity.ok().body(userCartService.getCartAllCount(dto));
     }
 
-//    // 장바구니 내역 전체 삭제
-//    @DeleteMapping("/user/cart/all")
-//    public ResponseEntity<?> deleteCartAll(@RequestBody List<Long> userIds) {
-//        userCartService.deleteCartAll(userIds);
-//        return ResponseEntity.ok().body(true);
-//    }
-
-    // 장바구니 내역 선택 삭제
+    @ValidUserAop
     @DeleteMapping("/user/cart")
     public ResponseEntity<?> deleteCart(ReqDeleteCartDto dto) {
         userCartService.deleteCartItem(dto);

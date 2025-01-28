@@ -41,38 +41,6 @@ public class UserService {
     @Autowired
     private UserPetMapper userPetMapper;
 
-    private User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new UserNotAuthenticatedException("로그인을 다시해주세요");
-        }
-        return myPageMapper.findUserByUsername(authentication.getName());
-    }
-
-    private void isValidUser(Long userId) {
-        PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        if(principalUser.getId() != userId) {
-            throw new AuthenticationServiceException("권한이없습니다.");
-        }
-    }
-
-    private void isExistUser(User user) {
-        if (user == null) {
-            throw new AuthenticationServiceException("존재하지 않는 사용자입니다.");
-        }
-    }
-
-    private User validUser(Long userId) {
-        isValidUser(userId);
-
-        User user = myPageMapper.findById(userId);
-
-        isExistUser(user);
-
-        return user;
-    }
-
     private RespUserInfoDto toRespUserInfoDto(User user) {
         Address address = user.getAddress();
 
@@ -99,10 +67,8 @@ public class UserService {
                 .build();
     }
 
-    //회원정보 조회
     public RespUserInfoDto getUserInfo(Long userId) {
-        User user = validUser(userId);
-
+        User user = myPageMapper.findById(userId);
         return toRespUserInfoDto(user);
     }
     
@@ -128,8 +94,6 @@ public class UserService {
     @Transactional(rollbackFor = UpdateUserException.class)
     public void updateUser(ReqUpdateUserDto dto) {
         try {
-            validUser(dto.getId());
-
             updateUserInfo(dto);
 
             updateAddress(dto);
@@ -140,19 +104,18 @@ public class UserService {
     }
 
     public void editPassword(ReqUpdatePasswordDto dto) {
-        User user = getCurrentUser();
 
-        if(!passwordEncoder.matches(dto.getOldPassword(), user.getPassword())) {
-            throw new ValidException(Map.of("oldPassword", "비밀번호 인증에 실패하였습니다. 다시 입력하세요"));
-        }
-        if(!dto.getNewPassword().equals(dto.getNewCheckPassword())) {
-            throw new ValidException(Map.of("newPasswordCheck", "비밀번호 인증에 실패하였습니다. 다시 입력하세요"));
-        }
-        if(passwordEncoder.matches(dto.getNewPassword(), user.getPassword())) {
-            throw new ValidException(Map.of("newPasswordCheck", "비밀번호 인증에 실패하였습니다. 다시 입력하세요"));
-        }
-        user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
-        myPageMapper.editPassword(user);
+//        if(!passwordEncoder.matches(dto.getOldPassword(), user.getPassword())) {
+//            throw new ValidException(Map.of("oldPassword", "비밀번호 인증에 실패하였습니다. 다시 입력하세요"));
+//        }
+//        if(!dto.getNewPassword().equals(dto.getNewCheckPassword())) {
+//            throw new ValidException(Map.of("newPasswordCheck", "비밀번호 인증에 실패하였습니다. 다시 입력하세요"));
+//        }
+//        if(passwordEncoder.matches(dto.getNewPassword(), user.getPassword())) {
+//            throw new ValidException(Map.of("newPasswordCheck", "비밀번호 인증에 실패하였습니다. 다시 입력하세요"));
+//        }
+//        user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+//        myPageMapper.editPassword(user);
     }
 
     private Boolean isExistPet(Long userId) {
@@ -162,8 +125,6 @@ public class UserService {
 
     public void modifyPet(ReqUpdatePetDto dto) {
         try {
-            validUser(dto.getId());
-
             Pet pet = dto.toEntity();
 
             if(!isExistPet(dto.getId())) {

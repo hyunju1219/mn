@@ -25,19 +25,11 @@ public class UserCartService {
     @Autowired
     private UserCartMapper userCartMapper;
 
-    private void validateCurrentUserId(Long userId) {
-        PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if(principalUser.getId() != userId) {
-            throw new SecurityException("사용자 ID가 일치하지 않습니다");
-        }
-    }
-
     public List<Cart> getCartIdAll(Long userId) {
         return userCartMapper.findCartIdByUserId(userId);
     }
 
     public void changeCartItemCount(ReqModifyCartItemDto dto) {
-        validateCurrentUserId(dto.getUserId());
         Cart cart = Cart.builder()
                 .id(dto.getCartId())
                 .productCount(dto.getProductCount())
@@ -46,8 +38,6 @@ public class UserCartService {
     }
 
     public void addCartItem(ReqPostCartDto dto) {
-        validateCurrentUserId(dto.getUserId());
-
         Cart currentCartItem = findCurrentCart(dto);
 
         if (currentCartItem != null) {
@@ -81,8 +71,6 @@ public class UserCartService {
     }
 
     public RespGetCartDto getCartAll(ReqGetCartAllDto dto) {
-        validateCurrentUserId(dto.getUserId());
-
         List<Cart> cartList = userCartMapper.getCart(createParamsMap(dto));
 
         List<RespGetCartDto.CartContent> cartContentList = mapToCartContetntList(cartList);
@@ -113,19 +101,14 @@ public class UserCartService {
     }
 
     public int getCartAllCount(ReqGetCartAllCountDto dto) {
-        validateCurrentUserId(dto.getUserId());
-
         return userCartMapper.findCartCount(dto.getUserId());
     }
 
     @Transactional(rollbackFor = DeleteException.class)
     public void deleteCartItem(ReqDeleteCartDto dto) {
-        validateCurrentUserId(dto.getUserId());
-
         validCartIds(dto.getUserId(),dto.getCartIds());
 
         userCartMapper.deleteCartById(dto.getCartIds());
-
     }
 
     private void validCartIds(Long userId, List<Long> deleteCartIds) {

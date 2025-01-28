@@ -74,7 +74,6 @@ public class UserStockService {
         return stockMapper.findStockByProductId(productId).getId();
     }
 
-
     private void modifyStockDetail(List<OrderDetail> orderDetailList, int i, String orderStatus) {
         stockDetailMapper.modifyStatusByOrderDetailId(StockDetail.builder()
                 .orderDetailId(orderDetailList.get(i).getId())
