@@ -14,26 +14,21 @@ import com.meongnyang.shop.repository.MembershipMapper;
 import com.meongnyang.shop.repository.OrderMapper;
 import com.meongnyang.shop.repository.PetMapper;
 import com.meongnyang.shop.repository.UserMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Service
 public class AdminUserService {
-
-    @Autowired
-    private UserMapper userMapper;
-    @Autowired
-    private MembershipMapper membershipMapper;
-    @Autowired
-    private OrderMapper orderMapper;
-    @Autowired
-    private PetMapper petMapper;
+    private final UserMapper userMapper;
+    private final MembershipMapper membershipMapper;
+    private final OrderMapper orderMapper;
+    private final PetMapper petMapper;
 
     public RespGetUsersDto getUsers() {
         List<User> userList = userMapper.findAll().stream()

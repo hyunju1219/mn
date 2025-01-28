@@ -8,19 +8,17 @@ import com.meongnyang.shop.repository.UserMapper;
 import com.meongnyang.shop.security.jwt.JwtProvider;
 import com.meongnyang.shop.security.principal.PrincipalUser;
 import io.jsonwebtoken.Claims;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Service
 public class TokenService {
-
-    @Autowired
-    private UserMapper userMapper;
-    @Autowired
-    private JwtProvider jwtProvider;
+    private final UserMapper userMapper;
+    private final JwtProvider jwtProvider;
 
     public Boolean access(ReqAccessDto dto) {
         try {

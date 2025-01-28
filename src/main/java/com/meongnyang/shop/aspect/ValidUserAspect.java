@@ -26,7 +26,7 @@ public class ValidUserAspect {
             Long userId = extractUserIdFromDto(arg);
 
             isValidUser(userId);
-            System.out.println("aop 지남" + arg);
+
             break;
         }
         return joinPoint.proceed(args);

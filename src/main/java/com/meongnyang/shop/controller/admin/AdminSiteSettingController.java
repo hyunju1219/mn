@@ -2,17 +2,19 @@ package com.meongnyang.shop.controller.admin;
 
 import com.meongnyang.shop.dto.request.admin.ReqSiteSettingDto;
 import com.meongnyang.shop.service.admin.AdminSiteSettingService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
+@RequiredArgsConstructor
 @RestController
 public class AdminSiteSettingController {
-
-    @Autowired
-    private AdminSiteSettingService adminSiteSettingService;
+    private final AdminSiteSettingService adminSiteSettingService;
 
     @GetMapping("/admin/setting")
     public ResponseEntity<?> getSiteSetting() {

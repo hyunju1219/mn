@@ -3,16 +3,15 @@ package com.meongnyang.shop.controller.admin;
 import com.meongnyang.shop.dto.request.admin.ReqModifyMembershipLevelDto;
 import com.meongnyang.shop.dto.request.admin.ReqSearchDto;
 import com.meongnyang.shop.service.admin.AdminUserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/admin")
 public class AdminUserInfoController {
-
-    @Autowired
-    private AdminUserService adminUserService;
+    private final AdminUserService adminUserService;
 
     @GetMapping("/users")
     public ResponseEntity<?> getUsersAll() {

@@ -6,18 +6,17 @@ import com.meongnyang.shop.dto.request.user.ReqProductCountDto;
 import com.meongnyang.shop.dto.request.user.ReqSearchProductDto;
 import com.meongnyang.shop.dto.response.user.RespProductListDto;
 import com.meongnyang.shop.service.user.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@RequiredArgsConstructor
 @RestController
 public class ProductController {
-
-    @Autowired
-    private ProductService productService;
+    private final ProductService productService;
 
     @GetMapping("/product/categorys")
     public ResponseEntity<?> getCategorys() {

@@ -17,26 +17,21 @@ import com.meongnyang.shop.repository.ImgUrlMapper;
 import com.meongnyang.shop.repository.PetGroupMapper;
 import com.meongnyang.shop.repository.StockMapper;
 import com.meongnyang.shop.repository.user.UserProductMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Service
 public class ProductService {
-
-    @Autowired
-    private PetGroupMapper petGroupMapper;
-    @Autowired
-    private CategoryMapper categoryMapper;
-    @Autowired
-    private UserProductMapper userProductMapper;
-    @Autowired
-    private ImgUrlMapper imgUrlMapper;
-    @Autowired
-    private StockMapper stockMapper;
+    private final PetGroupMapper petGroupMapper;
+    private final CategoryMapper categoryMapper;
+    private final UserProductMapper userProductMapper;
+    private final ImgUrlMapper imgUrlMapper;
+    private final StockMapper stockMapper;
 
     private Map<String, Object> petGroupIdMap = Map.of(
             "all", 0,

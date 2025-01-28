@@ -2,16 +2,15 @@ package com.meongnyang.shop.controller.admin;
 
 import com.meongnyang.shop.dto.request.admin.ReqSearchDto;
 import com.meongnyang.shop.service.admin.AdminOrderService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/admin")
 public class AdminOrderController {
-
-    @Autowired
-    private AdminOrderService adminOrderService;
+    private final AdminOrderService adminOrderService;
 
     @GetMapping("/orders")
     public ResponseEntity<?> getOrdersAll() {

@@ -3,15 +3,14 @@ package com.meongnyang.shop.controller.user;
 import com.meongnyang.shop.aspect.annotation.ValidUserAop;
 import com.meongnyang.shop.dto.request.user.*;
 import com.meongnyang.shop.service.user.UserCartService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@RequiredArgsConstructor
 @RestController
 public class CartController {
-
-    @Autowired
-    private UserCartService userCartService;
+    private final UserCartService userCartService;
 
     @ValidUserAop
     @PostMapping("/user/cart")

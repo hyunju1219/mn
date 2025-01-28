@@ -5,16 +5,14 @@ import com.meongnyang.shop.dto.request.user.ReqGetOrderListDto;
 import com.meongnyang.shop.dto.request.user.ReqModifyOrderDto;
 import com.meongnyang.shop.dto.request.user.ReqPostOrderDto;
 import com.meongnyang.shop.service.user.OrderService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
+@RequiredArgsConstructor
 @RestController
 public class OrderController {
-
-    @Autowired
-    private OrderService orderService;
+    private final OrderService orderService;
 
     // 주문 등록
     @ValidUserAop

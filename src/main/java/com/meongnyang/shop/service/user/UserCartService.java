@@ -2,13 +2,11 @@ package com.meongnyang.shop.service.user;
 
 import com.meongnyang.shop.dto.request.user.*;
 import com.meongnyang.shop.dto.response.user.RespGetCartDto;
-import com.meongnyang.shop.entity.*;
+import com.meongnyang.shop.entity.Cart;
 import com.meongnyang.shop.exception.DeleteException;
 import com.meongnyang.shop.repository.ImgUrlMapper;
 import com.meongnyang.shop.repository.user.UserCartMapper;
-import com.meongnyang.shop.security.principal.PrincipalUser;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,14 +14,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Service
 public class UserCartService {
-
-    @Autowired
-    private ImgUrlMapper imgUrlMapper;
-
-    @Autowired
-    private UserCartMapper userCartMapper;
+    private final ImgUrlMapper imgUrlMapper;
+    private final UserCartMapper userCartMapper;
 
     public List<Cart> getCartIdAll(Long userId) {
         return userCartMapper.findCartIdByUserId(userId);

@@ -3,6 +3,7 @@ package com.meongnyang.shop.security.handler;
 import com.meongnyang.shop.entity.User;
 import com.meongnyang.shop.repository.UserMapper;
 import com.meongnyang.shop.security.jwt.JwtProvider;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -15,14 +16,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
+@RequiredArgsConstructor
 @Component
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-
-    @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
-    private JwtProvider jwtProvider;
+    private final UserMapper userMapper;
+    private final JwtProvider jwtProvider;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
