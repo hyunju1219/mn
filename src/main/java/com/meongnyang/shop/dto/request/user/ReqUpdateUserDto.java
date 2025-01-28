@@ -1,5 +1,6 @@
 package com.meongnyang.shop.dto.request.user;
 
+import com.meongnyang.shop.entity.Address;
 import com.meongnyang.shop.entity.User;
 import lombok.Data;
 
@@ -8,7 +9,7 @@ import javax.validation.constraints.Pattern;
 
 @Data
 public class ReqUpdateUserDto {
-    private Long userId;
+    private Long id;
 
     @NotBlank
     @Pattern(regexp = "^[가-힣]+$", message = "이름은 한글만 입력 가능합니다.")
@@ -24,8 +25,18 @@ public class ReqUpdateUserDto {
 
     public User toEntity() {
         return User.builder()
+                .id(id)
                 .name(name)
                 .phone(phone)
+                .build();
+    }
+
+    public Address toEntityAddress() {
+        return Address.builder()
+                .userId(id)
+                .zipcode(zipcode)
+                .addressDefault(addressDefault)
+                .addressDetail(addressDetail)
                 .build();
     }
 }

@@ -31,6 +31,7 @@ public class MyPageController {
     // 회원정보 수정
     @PutMapping("/user/{userId}")
     public ResponseEntity<?> updateUser(@RequestBody ReqUpdateUserDto dto) {
+        System.out.println("수정요청" + dto);
         userService.updateUser(dto);
         return ResponseEntity.ok().body(true);
     }
@@ -46,6 +47,7 @@ public class MyPageController {
     // 반려동물정보 수정
     @PutMapping("/user/pet/{userId}")
     public ResponseEntity<?> modifyPet(@RequestBody ReqUpdatePetDto dto) {
+        System.out.println(dto);
         userService.modifyPet(dto);
         return ResponseEntity.ok().body(true);
     }
