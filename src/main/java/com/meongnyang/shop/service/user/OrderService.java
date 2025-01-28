@@ -37,17 +37,9 @@ public class OrderService {
     @Autowired
     private UserOrderDetailMapper userOrderDetailMapper;
 
-    private void getCurrentUser(Long userId) {
-        PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if(principalUser.getId() != userId) {
-            throw new SecurityException("사용자 ID가 일치하지 않습니다");
-        }
-    }
-
     //주문을 저장하는 부분(주문 -> 기본 주문, 상세 주문, 가재고, 가재고 상세)
     @Transactional(rollbackFor = RegisterException.class)
     public void postProductsOrder(ReqPostOrderDto dto) {
-       getCurrentUser(dto.getUserId());
         try {
             Payment payment = paymentService.getPaymentMethod(dto.getPaymentMethod());
 
@@ -66,8 +58,6 @@ public class OrderService {
     //재고확정(주문 테이블의 상태를 변경하고 재고 차감)
     @Transactional(rollbackFor = RegisterException.class)
     public void modifyProductsOrder(ReqModifyOrderDto dto) { //modifyOrderStatus
-        getCurrentUser(dto.getUserId());
-
         try {
             modifyOrder(dto);
             //주문아이디로 주문상세의 상품 리스트들 가져옴(productId와 productCount필요)
