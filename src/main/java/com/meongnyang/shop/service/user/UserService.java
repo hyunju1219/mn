@@ -49,17 +49,33 @@ public class UserService {
         return myPageMapper.findUserByUsername(authentication.getName());
     }
 
-    public RespUserInfoDto getUserInfo(Long id) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        PrincipalUser principalUser = (PrincipalUser) authentication.getPrincipal();
-        User user = myPageMapper.findById(id);
-        if(principalUser.getId() != id) {
+    private void isValidUser(Long userId) {
+        PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principalUser.getId() != userId) {
             throw new AuthenticationServiceException("권한이없습니다.");
         }
-        if(user == null) {
-            throw new AuthenticationServiceException("해당 사용자는 존재하지 않는 사용자입니다.");
+    }
+
+    private void isExistUser(User user) {
+        if (user == null) {
+            throw new AuthenticationServiceException("존재하지 않는 사용자입니다.");
         }
+    }
+
+    private User validUser(Long userId) {
+        isValidUser(userId);
+
+        User user = myPageMapper.findById(userId);
+
+        isExistUser(user);
+
+        return user;
+    }
+
+    private RespUserInfoDto toRespUserInfoDto(User user) {
         Address address = user.getAddress();
+
         Pet pet = user.getPet();
 
         Set<String> roles = user.getUserRoles().stream().map(
@@ -83,26 +99,41 @@ public class UserService {
                 .build();
     }
 
+    //회원정보 조회
+    public RespUserInfoDto getUserInfo(Long userId) {
+        User user = validUser(userId);
+
+        return toRespUserInfoDto(user);
+    }
+    
+    private Boolean isExistAddress(Long userId) {
+        Address address = userAddressMapper.findAddressByUserId(userId);
+        return address != null;
+    }
+
+    private void updateUserInfo(ReqUpdateUserDto dto) {
+        myPageMapper.UpdateUserInfoById(dto.toEntity());
+    }
+
+    private void updateAddress(ReqUpdateUserDto dto) {
+        Address address = dto.toEntityAddress();
+
+        if(!isExistAddress(address.getId())) {
+            userAddressMapper.saveAddress(address);
+            return;
+        }
+        userAddressMapper.UpdateAddressByUserId(address);
+    }
+
     @Transactional(rollbackFor = UpdateUserException.class)
     public void updateUser(ReqUpdateUserDto dto) {
         try {
-            User user = getCurrentUser();
-            user.setName(dto.toEntity().getName());
-            user.setPhone(dto.toEntity().getPhone());
-            myPageMapper.UpdateUserInfoById(user);
+            validUser(dto.getId());
 
-            Address address = Address.builder()
-                    .userId(user.getId())
-                    .zipcode(dto.getZipcode())
-                    .addressDefault(dto.getAddressDefault())
-                    .addressDetail(dto.getAddressDetail())
-                    .build();
+            updateUserInfo(dto);
 
-            if (userAddressMapper.findAddressByUserId(user.getId()) == null) {
-                userAddressMapper.saveAddress(address);
-            } if (userAddressMapper.findAddressByUserId(user.getId()) != null) {
-                userAddressMapper.UpdateAddressByUserId(address);
-            }
+            updateAddress(dto);
+
         } catch (Exception e) {
             throw new UpdateUserException(e.getMessage());
         }
@@ -124,21 +155,21 @@ public class UserService {
         myPageMapper.editPassword(user);
     }
 
+    private Boolean isExistPet(Long userId) {
+        Pet pet = userPetMapper.findPetByUserId(userId);
+        return pet != null;
+    }
+
     public void modifyPet(ReqUpdatePetDto dto) {
         try {
-            User user = getCurrentUser();
-            Pet pet = Pet.builder()
-                    .userId(user.getId())
-                    .petName(dto.getPetName())
-                    .petAge(dto.getPetAge())
-                    .petType(dto.getPetType())
-                    .build();
+            validUser(dto.getId());
 
-            if(userPetMapper.findPetByUserId(user.getId()) == null) {
+            Pet pet = dto.toEntity();
+
+            if(!isExistPet(dto.getId())) {
                 userPetMapper.savePet(pet);
-            } if(userPetMapper.findPetByUserId(user.getId()) != null) {
-                userPetMapper.UpdatePetByUserId(pet);
             }
+            userPetMapper.UpdatePetByUserId(pet);
         } catch (Exception e) {
             throw new UpdateUserException(e.getMessage());
         }

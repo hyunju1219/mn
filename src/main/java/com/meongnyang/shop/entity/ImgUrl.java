@@ -14,4 +14,5 @@ public class ImgUrl {
     private Long productId;
     private String imgPath;
     private String imgName;
+
 }
