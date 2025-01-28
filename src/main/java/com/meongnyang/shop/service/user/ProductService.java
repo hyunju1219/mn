@@ -45,29 +45,35 @@ public class ProductService {
             "recommend", 3
     );
 
-    public RespProductAllDto getProductsAll(ReqProductAllDto dto) {
-        Long startIndex = (dto.getPage() - 1) * dto.getLimit();
-
-        Map<String, Object> params = Map.of(
-                "startIndex", startIndex,
+    private Map<String, Object> createParmsMap(ReqProductAllDto dto) {
+        return Map.of(
+                "startIndex", (dto.getPage() - 1) * dto.getLimit(),
                 "limit", dto.getLimit(),
                 "petGroupId", petGroupIdMap.get(dto.getGroupName()),
                 "categoryId", dto.getCategoryId()
         );
+    }
 
-        List<Product> productList = userProductMapper.findProducts(params);
+    public RespProductAllDto getProductsAll(ReqProductAllDto dto) {
+        List<Product> products = userProductMapper.findProducts(createParmsMap(dto));
 
-        List<RespProductAllDto.ProductContent> productContentList = productList.stream()
-                .map(product -> {
-                    ImgUrl imgUrl = imgUrlMapper.findImgNameByProductId(product.getId());
-                    return product.toDto(imgUrl != null ?imgUrl.getImgName() : "");
-                })
-                .collect(Collectors.toList());
+        List<RespProductAllDto.ProductContent> productContentList = mapToProductContentList(products);
 
         return RespProductAllDto.builder()
                 .productList(productContentList)
-                .productListCount(productList.size())
+                .productListCount(productContentList.size())
                 .build();
+    }
+
+    private List<RespProductAllDto.ProductContent> mapToProductContentList(List<Product> products) {
+        return products.stream()
+                .map(this::mapToProductContent)
+                .collect(Collectors.toList());
+    }
+
+    private RespProductAllDto.ProductContent mapToProductContent(Product product) {
+        String imgUrlName = imgUrlMapper.findImgNameByProductId(product.getId()).getImgName();
+        return product.toDto(imgUrlName != null ? imgUrlName : "");
     }
 
     public int getProductsCount(ReqProductCountDto dto) {
@@ -88,10 +94,21 @@ public class ProductService {
     public RespGetProductDetailDto getProductDetail(Long productId) {
         Product product = userProductMapper.findProductById(productId);
 
-        Stock stock = stockMapper.findStockByProductId(productId);
-        List<String> imgNames = product.getImgUrls().stream().map(ImgUrl::getImgName).collect(Collectors.toList());
+        Stock stock = getStockByProductId(productId);
+
+        List<String> imgNames = getImgUrlList(product);
 
         return product.toUserProductDetailDto(imgNames, stock.getCurrentStock());
+    }
+
+    private Stock getStockByProductId(Long productId) {
+        return stockMapper.findStockByProductId(productId);
+    }
+
+    private List<String> getImgUrlList(Product product) {
+        return product.getImgUrls().stream()
+                .map(ImgUrl::getImgName)
+                .collect(Collectors.toList());
     }
 
     public RespCheckProductsDto getCheckProduct(ReqGetCheckProductsDto dto) {
@@ -119,24 +136,33 @@ public class ProductService {
                 .build();
     }
 
+    private RespProductListDto.SearchContent mapToSearchContent(Product product) {
+        String imgUrlName = imgUrlMapper.findImgNameByProductId(product.getId()).getImgName();
+        return product.toSearchContent(imgUrlName != null ? imgUrlName : "");
+    }
+
+    private List<RespProductListDto.SearchContent> mapToSearchProductList(List<Product> products) {
+        return products.stream()
+                .map(this::mapToSearchContent)
+                .collect(Collectors.toList());
+    }
+
     public RespProductListDto getProductSearch(ReqSearchProductDto dto) {
         Long startIndex = (dto.getPage() - 1) * dto.getLimit();
+
         Map<String, Object> params = Map.of(
                 "startIndex", startIndex,
                 "limit", dto.getLimit(),
                 "searchValue", dto.getSearch() == null ? "" : dto.getSearch()
         );
-        List<Product> productLists = userProductMapper.findAllBySearch(params);
-        List<RespProductListDto.SearchContent> searchList = productLists.stream()
-                .map(product -> {
-                    ImgUrl imgUrl = imgUrlMapper.findImgNameByProductId(product.getId());
-                    return product.toSearchContent(imgUrl != null ?imgUrl.getImgName() : "");
-                })
-                .collect(Collectors.toList());
+
+        List<Product> products = userProductMapper.findAllBySearch(params);
+
+        List<RespProductListDto.SearchContent> searchList = mapToSearchProductList(products);
 
         return  RespProductListDto.builder()
                 .products(searchList)
-                .productCount(productLists.size())
+                .productCount(searchList.size())
                 .build();
     }
 

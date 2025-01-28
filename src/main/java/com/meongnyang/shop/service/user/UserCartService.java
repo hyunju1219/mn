@@ -5,7 +5,6 @@ import com.meongnyang.shop.dto.response.user.RespGetCartDto;
 import com.meongnyang.shop.entity.*;
 import com.meongnyang.shop.exception.DeleteException;
 import com.meongnyang.shop.repository.ImgUrlMapper;
-import com.meongnyang.shop.repository.user.MyPageMapper;
 import com.meongnyang.shop.repository.user.UserCartMapper;
 import com.meongnyang.shop.security.principal.PrincipalUser;
 import org.springframework.beans.factory.annotation.Autowired;
