@@ -7,6 +7,7 @@ import com.meongnyang.shop.dto.request.admin.ReqRegisterProductDto;
 import com.meongnyang.shop.exception.ValidException;
 import com.meongnyang.shop.service.admin.AdminProductService;
 import com.meongnyang.shop.service.auth.AuthService;
+import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -17,14 +18,12 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 
+@RequiredArgsConstructor
 @Component
 @Aspect
 public class ValidAspect {
-
-    @Autowired
-    private AuthService userService;
-    @Autowired
-    private AdminProductService adminProductService;
+    private final AuthService userService;
+    private final AdminProductService adminProductService;
 
     @Pointcut("@annotation(com.meongnyang.shop.aspect.annotation.ValidAop)")
     public void pointcut() {}

@@ -4,21 +4,15 @@ import com.meongnyang.shop.dto.response.admin.RespDashboardDto;
 import com.meongnyang.shop.repository.OrderMapper;
 import com.meongnyang.shop.repository.StockMapper;
 import com.meongnyang.shop.repository.UserMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+@RequiredArgsConstructor
 @Service
 public class AdminDashboardService {
-
-    @Autowired
-    private OrderMapper orderMapper;
-
-    @Autowired
-    private StockMapper stockMapper;
-
-    @Autowired
-    private UserMapper userMapper;
+    private final OrderMapper orderMapper;
+    private final StockMapper stockMapper;
+    private final UserMapper userMapper;
 
     public RespDashboardDto getDashboard() {
         RespDashboardDto respDashboardDto = orderMapper.getDashboardData();

@@ -8,38 +8,24 @@ import com.meongnyang.shop.entity.Address;
 import com.meongnyang.shop.entity.Pet;
 import com.meongnyang.shop.entity.User;
 import com.meongnyang.shop.exception.UpdateUserException;
-import com.meongnyang.shop.exception.UserNotAuthenticatedException;
-import com.meongnyang.shop.exception.ValidException;
 import com.meongnyang.shop.repository.user.MyPageMapper;
 import com.meongnyang.shop.repository.user.UserAddressMapper;
 import com.meongnyang.shop.repository.user.UserPetMapper;
-import com.meongnyang.shop.security.principal.PrincipalUser;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Service
 public class UserService {
-
-    @Autowired
-    private MyPageMapper myPageMapper;
-
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-
-    @Autowired
-    private UserAddressMapper userAddressMapper;
-
-    @Autowired
-    private UserPetMapper userPetMapper;
+    private final MyPageMapper myPageMapper;
+    private final BCryptPasswordEncoder passwordEncoder;
+    private final UserAddressMapper userAddressMapper;
+    private final UserPetMapper userPetMapper;
 
     private RespUserInfoDto toRespUserInfoDto(User user) {
         Address address = user.getAddress();

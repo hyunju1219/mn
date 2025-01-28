@@ -10,21 +10,18 @@ import com.meongnyang.shop.entity.Stock;
 import com.meongnyang.shop.entity.StockDetail;
 import com.meongnyang.shop.repository.StockDetailMapper;
 import com.meongnyang.shop.repository.StockMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Service
 public class AdminStockService {
-
-    @Autowired
-    private StockMapper stockMapper;
-
-    @Autowired
-    private StockDetailMapper stockDetailMapper;
+    private final StockMapper stockMapper;
+    private final StockDetailMapper stockDetailMapper;
 
     public RespGetStocksDto getStocks() {
         List<Stock> stockList = stockMapper.findStockAll();

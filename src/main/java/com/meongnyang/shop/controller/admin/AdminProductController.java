@@ -6,8 +6,7 @@ import com.meongnyang.shop.dto.request.admin.ReqModifyProductDto;
 import com.meongnyang.shop.dto.request.admin.ReqRegisterProductDto;
 import com.meongnyang.shop.dto.request.admin.ReqSearchDto;
 import com.meongnyang.shop.service.admin.AdminProductService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -15,12 +14,11 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.io.IOException;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/admin")
 public class AdminProductController {
-
-    @Autowired
-    private AdminProductService adminProductService;
+    private final AdminProductService adminProductService;
 
     @ValidAop
     @PostMapping("/product")

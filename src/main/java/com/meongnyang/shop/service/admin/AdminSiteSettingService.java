@@ -5,7 +5,7 @@ import com.meongnyang.shop.dto.response.admin.RespSiteSettingDto;
 import com.meongnyang.shop.entity.SiteSetting;
 import com.meongnyang.shop.exception.DataNotFoundException;
 import com.meongnyang.shop.repository.SiteSettingMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,11 +14,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 
+@RequiredArgsConstructor
 @Service
 public class AdminSiteSettingService {
-
-    @Autowired
-    private SiteSettingMapper siteSettingMapper;
+    private final SiteSettingMapper siteSettingMapper;
 
     @Value("${file.path}")
     private String filePath;

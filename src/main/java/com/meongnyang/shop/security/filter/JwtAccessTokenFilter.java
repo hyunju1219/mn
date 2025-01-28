@@ -6,6 +6,7 @@ import com.meongnyang.shop.security.jwt.JwtProvider;
 import com.meongnyang.shop.security.principal.PrincipalUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,14 +17,11 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
+@RequiredArgsConstructor
 @Component
 public class JwtAccessTokenFilter extends GenericFilter {
-
-    @Autowired
-    private JwtProvider jwtProvider;
-
-    @Autowired
-    private UserMapper userMapper;
+    private final JwtProvider jwtProvider;
+    private final UserMapper userMapper;
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {

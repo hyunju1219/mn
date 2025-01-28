@@ -1,41 +1,35 @@
 package com.meongnyang.shop.service.user;
 
 import com.meongnyang.shop.dto.request.user.ReqGetOrderListDto;
-
 import com.meongnyang.shop.dto.request.user.ReqModifyOrderDto;
 import com.meongnyang.shop.dto.request.user.ReqPostOrderDto;
 import com.meongnyang.shop.dto.response.user.RespGetOrderListDto;
-import com.meongnyang.shop.entity.*;
+import com.meongnyang.shop.entity.Order;
+import com.meongnyang.shop.entity.OrderDetail;
+import com.meongnyang.shop.entity.Payment;
 import com.meongnyang.shop.exception.RegisterException;
-import com.meongnyang.shop.repository.*;
 import com.meongnyang.shop.repository.user.UserOrderDetailMapper;
 import com.meongnyang.shop.repository.user.UserOrderMapper;
 import com.meongnyang.shop.security.principal.PrincipalUser;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 
 //@EnableScheduling
+@RequiredArgsConstructor
 @Service
 public class OrderService {
-
-    @Autowired
-    private PaymentService paymentService;
-    @Autowired
-    private UserStockService userStockService;
-    @Autowired
-    private UserOrderMapper userOrderMapper;
-    @Autowired
-    private UserOrderDetailMapper userOrderDetailMapper;
+    private final PaymentService paymentService;
+    private final UserStockService userStockService;
+    private final UserOrderMapper userOrderMapper;
+    private final UserOrderDetailMapper userOrderDetailMapper;
 
     //주문을 저장하는 부분(주문 -> 기본 주문, 상세 주문, 가재고, 가재고 상세)
     @Transactional(rollbackFor = RegisterException.class)

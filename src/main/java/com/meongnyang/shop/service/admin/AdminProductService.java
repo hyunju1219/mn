@@ -10,7 +10,7 @@ import com.meongnyang.shop.entity.*;
 import com.meongnyang.shop.exception.DeleteException;
 import com.meongnyang.shop.exception.RegisterException;
 import com.meongnyang.shop.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,25 +18,21 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
+@RequiredArgsConstructor
 @Service
 public class AdminProductService {
-
     @Value("${file.path}")
     private String filePath;
-    @Autowired
-    private ProductMapper productMapper;
-    @Autowired
-    private StockMapper stockMapper;
-    @Autowired
-    private ImgUrlMapper imgUrlMapper;
-    @Autowired
-    private PetGroupMapper petGroupMapper;
-    @Autowired
-    private CategoryMapper categoryMapper;
-    @Autowired
-    private ProductDetailImgMapper productDetailImgMapper;
+    private final ProductMapper productMapper;
+    private final StockMapper stockMapper;
+    private final ImgUrlMapper imgUrlMapper;
+    private final PetGroupMapper petGroupMapper;
+    private final CategoryMapper categoryMapper;
+    private final ProductDetailImgMapper productDetailImgMapper;
 
     @Transactional(rollbackFor = Exception.class)
     public void registerProduct(ReqRegisterProductDto dto) throws IOException {

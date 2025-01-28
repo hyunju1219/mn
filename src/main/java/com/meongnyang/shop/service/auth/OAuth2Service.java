@@ -8,7 +8,7 @@ import com.meongnyang.shop.exception.SignupException;
 import com.meongnyang.shop.repository.RoleMapper;
 import com.meongnyang.shop.repository.UserMapper;
 import com.meongnyang.shop.repository.UserRoleMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -23,17 +23,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+@RequiredArgsConstructor
 @Service
 public class OAuth2Service implements OAuth2UserService {
-
-    @Autowired
-    private DefaultOAuth2UserService defaultOAuth2UserService;
-    @Autowired
-    private UserMapper userMapper;
-    @Autowired
-    private RoleMapper roleMapper;
-    @Autowired
-    private UserRoleMapper userRoleMapper;
+    private final DefaultOAuth2UserService defaultOAuth2UserService;
+    private final UserMapper userMapper;
+    private final RoleMapper roleMapper;
+    private final UserRoleMapper userRoleMapper;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {

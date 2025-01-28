@@ -11,7 +11,7 @@ import com.meongnyang.shop.entity.UserRole;
 import com.meongnyang.shop.exception.SignupException;
 import com.meongnyang.shop.repository.*;
 import com.meongnyang.shop.security.jwt.JwtProvider;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,29 +20,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
+@RequiredArgsConstructor
 @Service
 public class AuthService {
-
-    @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
-    private RoleMapper roleMapper;
-
-    @Autowired
-    private UserRoleMapper userRoleMapper;
-
-    @Autowired
-    private AddressMapper addressMapper;
-
-    @Autowired
-    private PetMapper petMapper;
-
-    @Autowired
-    private JwtProvider jwtProvider;
-
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
+    private final RoleMapper roleMapper;
+    private final UserRoleMapper userRoleMapper;
+    private final AddressMapper addressMapper;
+    private final PetMapper petMapper;
+    private final JwtProvider jwtProvider;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     public RespAdminSigninDto adminSignin(ReqAdminSigninDto dto) {
         User user = userMapper.findUserByUsername(dto.getUsername());

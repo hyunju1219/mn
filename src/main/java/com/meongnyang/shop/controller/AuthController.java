@@ -7,21 +7,22 @@ import com.meongnyang.shop.dto.request.auth.ReqUserSigninDto;
 import com.meongnyang.shop.dto.request.auth.ReqUserSignupDto;
 import com.meongnyang.shop.service.auth.AuthService;
 import com.meongnyang.shop.service.auth.OAuth2Service;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-
-    @Autowired
-    private AuthService authService;
-    @Autowired
-    private OAuth2Service oAuth2Service;
+    private final AuthService authService;
+    private final OAuth2Service oAuth2Service;
 
     @ValidAop
     @PostMapping("/signup")

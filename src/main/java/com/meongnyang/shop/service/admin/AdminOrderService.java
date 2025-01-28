@@ -9,7 +9,7 @@ import com.meongnyang.shop.exception.DeleteException;
 import com.meongnyang.shop.repository.ImgUrlMapper;
 import com.meongnyang.shop.repository.OrderDetailMapper;
 import com.meongnyang.shop.repository.OrderMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,14 +17,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Service
 public class AdminOrderService {
-    @Autowired
-    private OrderMapper orderMapper;
-    @Autowired
-    private OrderDetailMapper orderDetailMapper;
-    @Autowired
-    private ImgUrlMapper imgUrlMapper;
+    private final OrderMapper orderMapper;
+    private final OrderDetailMapper orderDetailMapper;
+    private final ImgUrlMapper imgUrlMapper;
 
     public RespGetOrdersDto getOrders() {
         List<Order> orderList = orderMapper.findOrderAll();

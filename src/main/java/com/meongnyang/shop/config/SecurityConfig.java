@@ -4,7 +4,7 @@ import com.meongnyang.shop.security.filter.JwtAccessTokenFilter;
 import com.meongnyang.shop.security.handler.AuthenticationHandler;
 import com.meongnyang.shop.security.handler.OAuth2SuccessHandler;
 import com.meongnyang.shop.service.auth.OAuth2Service;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,21 +13,14 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+@RequiredArgsConstructor
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
-    @Autowired
-    private JwtAccessTokenFilter jwtAccessTokenFilter;
-
-    @Autowired
-    private OAuth2Service oAuth2Service;
-
-    @Autowired
-    private OAuth2SuccessHandler oAuth2SuccessHandler;
-
-    @Autowired
-    private AuthenticationHandler authenticationHandler;
+    private final JwtAccessTokenFilter jwtAccessTokenFilter;
+    private final OAuth2Service oAuth2Service;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final AuthenticationHandler authenticationHandler;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {

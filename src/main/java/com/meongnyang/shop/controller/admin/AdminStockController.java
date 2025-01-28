@@ -7,19 +7,17 @@ import com.meongnyang.shop.dto.request.admin.ReqModifyStockListDto;
 import com.meongnyang.shop.dto.request.admin.ReqStockSearchOptionDto;
 import com.meongnyang.shop.service.admin.AdminStockDetailService;
 import com.meongnyang.shop.service.admin.AdminStockService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/admin")
 public class AdminStockController {
 
-    @Autowired
-    private AdminStockService adminStockService;
-
-    @Autowired
-    private AdminStockDetailService adminStockDetailService;
+    private final AdminStockService adminStockService;
+    private final AdminStockDetailService adminStockDetailService;
 
     @PostMapping("/products/stock/detail")
     public ResponseEntity<?> addStockDetail(@RequestBody ReqAddStockDetailDto dto) {

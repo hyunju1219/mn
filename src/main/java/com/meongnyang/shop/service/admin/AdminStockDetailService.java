@@ -3,15 +3,15 @@ package com.meongnyang.shop.service.admin;
 import com.meongnyang.shop.dto.request.admin.ReqAddStockDetailDto;
 import com.meongnyang.shop.repository.StockDetailMapper;
 import com.meongnyang.shop.repository.StockMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@RequiredArgsConstructor
 @Service
 public class AdminStockDetailService {
-
-    @Autowired
-    private StockMapper stockMapper;
+    private final StockMapper stockMapper;
 
     @Autowired
     private StockDetailMapper stockDetailMapper;
