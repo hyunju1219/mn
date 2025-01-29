@@ -7,6 +7,7 @@ import javax.validation.constraints.Pattern;
 
 @Data
 public class ReqUpdatePasswordDto {
+    private Long userId;
     @NotBlank(message = "현재 비밀번호를 입력해주세요")
     private String oldPassword;
     @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,20}$", message = "하나의 영문자, 숫자, 특수문자를 포함한 8 ~ 20자리 형식이어야 합니다")
