@@ -23,7 +23,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Service
 public class AuthService {
-    private final UserMapper userMapper;
+    private final AdminUserMapper adminUserMapper;
     private final RoleMapper roleMapper;
     private final UserRoleMapper userRoleMapper;
     private final AddressMapper addressMapper;
@@ -32,7 +32,7 @@ public class AuthService {
     private final BCryptPasswordEncoder passwordEncoder;
 
     public RespAdminSigninDto adminSignin(ReqAdminSigninDto dto) {
-        User user = userMapper.findUserByUsername(dto.getUsername());
+        User user = adminUserMapper.findUserByUsername(dto.getUsername());
         if(user == null) {
             throw new UsernameNotFoundException("관리자 정보를 확인하세요");
         }
@@ -48,7 +48,7 @@ public class AuthService {
     public void signup(ReqUserSignupDto dto) {
         try {
             User user = dto.toEntityByUser(passwordEncoder);
-            userMapper.save(user);
+            adminUserMapper.save(user);
             Role role = roleMapper.findByRoleName("ROLE_USER");
             if(role == null) {
                 role = Role.builder()
@@ -76,7 +76,7 @@ public class AuthService {
     }
     //유저가 중복되면 false
     public Boolean isDuplicationUsername(String username) {
-        User user = userMapper.findUserByUsername(username);
+        User user = adminUserMapper.findUserByUsername(username);
         if (user == null)  {
             return true;
         }
@@ -84,7 +84,7 @@ public class AuthService {
     }
 
     public RespGetTokenDto signin(ReqUserSigninDto dto) {
-        User user = userMapper.findUserByUsername(dto.getUsername());
+        User user = adminUserMapper.findUserByUsername(dto.getUsername());
         if(user == null) {
             throw new UsernameNotFoundException("사용자 정보를 확인하세요");
         }

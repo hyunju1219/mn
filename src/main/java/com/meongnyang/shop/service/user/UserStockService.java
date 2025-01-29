@@ -37,20 +37,7 @@ public class UserStockService {
                 .build();
     }
 
-    public void processModifyStock(List<OrderDetail> orderDetailList, String orderStatus) {
-        for (int i = 0; i < orderDetailList.size(); i++) {
-            modifyStockDetail(orderDetailList, i, orderStatus);
-
-            modifyStockByCurrentCount(orderDetailList, i, orderStatus);
-        }
-    }
-
-    public void processRegisterStock(ReqPostOrderDto.ProductEasy product, Long orderDetailId) {
-        modifyStock(product);
-        registerStockDetail(product, orderDetailId);
-    }
-
-    private void modifyStock(ReqPostOrderDto.ProductEasy product) {
+    public void modifyStock(ReqPostOrderDto.ProductEasy product) {
         Map<String, Object> params = Map.of(
                 "productId", product.getProductId(),
                 "productCount", product.getProductCount()
@@ -58,27 +45,27 @@ public class UserStockService {
         stockMapper.modifyExpectedStockByProductId(params);
     }
 
-    private void registerStockDetail(ReqPostOrderDto.ProductEasy product, Long orderDetailId) {
+    public void registerStockDetail(ReqPostOrderDto.ProductEasy product, Long orderDetailId) {
         stockDetailMapper.saveOrder(StockDetail.builder()
-                .stockId(getStock(product.getProductId()))
+                .stockId(getStock(product.getProductId()).getId())
                 .status("배송중")
                 .arrivalQuantity(product.getProductCount())
                 .orderDetailId(orderDetailId)
                 .build());
     }
 
-    private Long getStock(Long productId) {
-        return stockMapper.findStockByProductId(productId).getId();
+    public Stock getStock(Long productId) {
+        return stockMapper.findStockByProductId(productId);
     }
 
-    private void modifyStockDetail(List<OrderDetail> orderDetailList, int i, String orderStatus) {
+    public void modifyStockDetail(List<OrderDetail> orderDetailList, int i, String orderStatus) {
         stockDetailMapper.modifyStatusByOrderDetailId(StockDetail.builder()
                 .orderDetailId(orderDetailList.get(i).getId())
                 .status(orderStatus.equals("구매확정") ? "구매확정" : "취소")
                 .build());
     }
 
-    private void modifyStockByCurrentCount(List<OrderDetail> orderDetailList, int i, String orderStatus) {
+    public void modifyStockByCurrentCount(List<OrderDetail> orderDetailList, int i, String orderStatus) {
         Map<String, Object> productDetail = Map.of(
                 "productId", orderDetailList.get(i).getProductId(),
                 "productCount", orderDetailList.get(i).getProductCount(),

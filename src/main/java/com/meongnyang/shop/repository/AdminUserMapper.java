@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @Mapper
-public interface UserMapper {
+public interface AdminUserMapper {
     int save(User user);
     User findUserByUsername(String username);
     User findUserById(Long id);

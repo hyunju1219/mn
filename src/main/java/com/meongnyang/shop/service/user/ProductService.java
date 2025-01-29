@@ -12,9 +12,7 @@ import com.meongnyang.shop.dto.response.user.RespProductListDto;
 import com.meongnyang.shop.entity.ImgUrl;
 import com.meongnyang.shop.entity.Product;
 import com.meongnyang.shop.entity.Stock;
-import com.meongnyang.shop.repository.CategoryMapper;
 import com.meongnyang.shop.repository.ImgUrlMapper;
-import com.meongnyang.shop.repository.PetGroupMapper;
 import com.meongnyang.shop.repository.StockMapper;
 import com.meongnyang.shop.repository.user.UserProductMapper;
 import lombok.RequiredArgsConstructor;
@@ -27,11 +25,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class ProductService {
-    private final PetGroupMapper petGroupMapper;
-    private final CategoryMapper categoryMapper;
+    private final PetGroupService petGroupService;
+    private final CategoryService categoryService;
+    private final ImgUrlService imgUrlService;
+    private final UserStockService stockService;
     private final UserProductMapper userProductMapper;
-    private final ImgUrlMapper imgUrlMapper;
-    private final StockMapper stockMapper;
 
     private Map<String, Object> petGroupIdMap = Map.of(
             "all", 0,
@@ -67,7 +65,7 @@ public class ProductService {
     }
 
     private RespProductAllDto.ProductContent mapToProductContent(Product product) {
-        String imgUrlName = imgUrlMapper.findImgNameByProductId(product.getId()).getImgName();
+        String imgUrlName = imgUrlService.getImgUrlName(product.getId());
         return product.toDto(imgUrlName != null ? imgUrlName : "");
     }
 
@@ -81,23 +79,19 @@ public class ProductService {
 
     public RespGetCategorysDto getCategorys() {
         return RespGetCategorysDto.builder()
-                .petGroupList(petGroupMapper.findPetGroup())
-                .categoryList(categoryMapper.findCategory())
+                .petGroupList(petGroupService.getPetGroups())
+                .categoryList(categoryService.getCategories())
                 .build();
     }
 
     public RespGetProductDetailDto getProductDetail(Long productId) {
         Product product = userProductMapper.findProductById(productId);
 
-        Stock stock = getStockByProductId(productId);
+        Stock stock = stockService.getStock(productId);
 
         List<String> imgNames = getImgUrlList(product);
 
         return product.toUserProductDetailDto(imgNames, stock.getCurrentStock());
-    }
-
-    private Stock getStockByProductId(Long productId) {
-        return stockMapper.findStockByProductId(productId);
     }
 
     private List<String> getImgUrlList(Product product) {
@@ -111,7 +105,7 @@ public class ProductService {
 
         List<RespCheckProductsDto.CheckProduct> checkProductList = productList.stream()
                 .map(product -> {
-                    ImgUrl imgName = imgUrlMapper.findImgNameByProductId(product.getId());
+                    String imgName = imgUrlService.getImgUrlName(product.getId());
 
                     return RespCheckProductsDto.CheckProduct.builder()
                             .productId(product.getId())
@@ -120,7 +114,7 @@ public class ProductService {
                             .productPriceDiscount(product.getProductPriceDiscount())
                             .groupName(product.getPetGroup().getCategoryGroupName())
                             .categoryName(product.getCategory().getCategoryName())
-                            .imgName(imgName != null ? imgName.getImgName() : "")
+                            .imgName(imgName != null ? imgName : "")
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -132,7 +126,7 @@ public class ProductService {
     }
 
     private RespProductListDto.SearchContent mapToSearchContent(Product product) {
-        String imgUrlName = imgUrlMapper.findImgNameByProductId(product.getId()).getImgName();
+        String imgUrlName = imgUrlService.getImgUrlName(product.getId());
         return product.toSearchContent(imgUrlName != null ? imgUrlName : "");
     }
 

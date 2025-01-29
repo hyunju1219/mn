@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-
 //@EnableScheduling
 @RequiredArgsConstructor
 @Service
@@ -42,7 +41,8 @@ public class OrderService {
             for (ReqPostOrderDto.ProductEasy product : dto.getProducts()) {
                 Long orderDetailId = registerOrderDetail(product, orderId);
 
-                userStockService.processRegisterStock(product, orderDetailId);
+                userStockService.modifyStock(product);
+                userStockService.registerStockDetail(product, orderDetailId);
             }
         } catch (Exception e) {
             throw new RegisterException(e.getMessage());
@@ -57,7 +57,13 @@ public class OrderService {
             //주문아이디로 주문상세의 상품 리스트들 가져옴(productId와 productCount필요)
             List<OrderDetail> orderDetailList = getOrderDetailByOrderId(dto.getId());
 
-            userStockService.processModifyStock(orderDetailList, dto.getOrderStatus());
+            String orderStatus = dto.getOrderStatus();
+
+            for (int i = 0; i < orderDetailList.size(); i++) {
+                userStockService.modifyStockDetail(orderDetailList, i, orderStatus);
+
+                userStockService.modifyStockByCurrentCount(orderDetailList, i, orderStatus);
+            }
 
         } catch (Exception e) {
             throw new RegisterException(e.getMessage());
@@ -115,9 +121,7 @@ public class OrderService {
         List<Order> orderList = userOrderMapper.findArrivingStatusOrderList();
         for (Order order : orderList) {
             ReqModifyOrderDto dto = new ReqModifyOrderDto(order.getId(), order.getUserId(), "구매확정");
-            modifyOrder(dto);
-            List<OrderDetail> orderDetailList = getOrderDetailByOrderId(dto.getId());
-            userStockService.processModifyStock(orderDetailList, dto.getOrderStatus());
+            modifyProductsOrder(dto);
         }
     }
 

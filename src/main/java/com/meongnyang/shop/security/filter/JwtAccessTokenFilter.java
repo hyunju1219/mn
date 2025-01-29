@@ -1,13 +1,12 @@
 package com.meongnyang.shop.security.filter;
 
 import com.meongnyang.shop.entity.User;
-import com.meongnyang.shop.repository.UserMapper;
+import com.meongnyang.shop.repository.AdminUserMapper;
 import com.meongnyang.shop.security.jwt.JwtProvider;
 import com.meongnyang.shop.security.principal.PrincipalUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,7 +20,7 @@ import java.io.IOException;
 @Component
 public class JwtAccessTokenFilter extends GenericFilter {
     private final JwtProvider jwtProvider;
-    private final UserMapper userMapper;
+    private final AdminUserMapper adminUserMapper;
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
@@ -40,7 +39,7 @@ public class JwtAccessTokenFilter extends GenericFilter {
         try {
             claims = jwtProvider.getClaims(accessToken);
             Long userId = ((Integer) claims.get("userId")).longValue(); //Object -> Integer -> Long
-            User user =  userMapper.findUserById(userId);
+            User user =  adminUserMapper.findUserById(userId);
             if (user == null) {
                 throw new JwtException("해당 ID(" + userId + ")의 사용자 정보를 찾지 못했습니다.");
             }

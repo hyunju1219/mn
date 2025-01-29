@@ -4,7 +4,7 @@ import com.meongnyang.shop.dto.request.auth.ReqAccessDto;
 import com.meongnyang.shop.dto.response.admin.RespTokenUserInfoDto;
 import com.meongnyang.shop.entity.User;
 import com.meongnyang.shop.exception.AccessTokenException;
-import com.meongnyang.shop.repository.UserMapper;
+import com.meongnyang.shop.repository.AdminUserMapper;
 import com.meongnyang.shop.security.jwt.JwtProvider;
 import com.meongnyang.shop.security.principal.PrincipalUser;
 import io.jsonwebtoken.Claims;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class TokenService {
-    private final UserMapper userMapper;
+    private final AdminUserMapper adminUserMapper;
     private final JwtProvider jwtProvider;
 
     public Boolean access(ReqAccessDto dto) {
@@ -25,7 +25,7 @@ public class TokenService {
             String token = jwtProvider.removeBearer(dto.getAccessToken());
             Claims claims = jwtProvider.getClaims(token);
             Long userId = ((Integer) claims.get("userId")).longValue();
-            User user = userMapper.findUserById(userId);
+            User user = adminUserMapper.findUserById(userId);
             if(user == null) {
                 throw new RuntimeException();
             }
@@ -37,7 +37,7 @@ public class TokenService {
 
     public RespTokenUserInfoDto getUserMe() {
         PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User user = userMapper.findUserById(principalUser.getId());
+        User user = adminUserMapper.findUserById(principalUser.getId());
 
         return RespTokenUserInfoDto.builder()
                 .id(user.getId())
