@@ -7,12 +7,14 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Component
 @Aspect
+@Order(1)
 public class ValidUserAspect {
 
     @Pointcut("@annotation(com.meongnyang.shop.aspect.annotation.ValidUserAop)")
@@ -61,6 +63,8 @@ public class ValidUserAspect {
             return ((ReqModifyOrderDto) arg).getUserId();
         } else if (arg instanceof ReqGetOrderListDto) {
             return ((ReqGetOrderListDto) arg).getUserId();
+        } else if (arg instanceof ReqUpdatePasswordDto) {
+            return ((ReqUpdatePasswordDto) arg).getUserId();
         }
 
         return null;

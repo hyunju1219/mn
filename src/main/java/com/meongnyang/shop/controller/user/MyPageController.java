@@ -23,15 +23,14 @@ public class MyPageController {
         return ResponseEntity.ok().body(userService.getUserInfo(userId));
     }
 
-    // 회원정보 수정
     @ValidUserAop
     @PutMapping("/user/{userId}")
     public ResponseEntity<?> updateUser(@RequestBody ReqUpdateUserDto dto) {
-        System.out.println("수정요청" + dto);
         userService.updateUser(dto);
         return ResponseEntity.ok().body(true);
     }
 
+    @ValidUserAop
     @ValidAop
     @PutMapping("/edit/password")
     public ResponseEntity<?> editPassword(@Valid @RequestBody ReqUpdatePasswordDto dto, BindingResult bindingResult) {

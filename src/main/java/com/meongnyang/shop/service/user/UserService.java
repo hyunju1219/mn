@@ -8,12 +8,16 @@ import com.meongnyang.shop.entity.Address;
 import com.meongnyang.shop.entity.Pet;
 import com.meongnyang.shop.entity.User;
 import com.meongnyang.shop.exception.UpdateUserException;
+import com.meongnyang.shop.exception.ValidException;
 import com.meongnyang.shop.repository.user.MyPageMapper;
+import com.meongnyang.shop.security.principal.PrincipalUser;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -25,6 +29,10 @@ public class UserService {
     private final AddressService addressService;
     private final PetService petService;
     private final MyPageMapper myPageMapper;
+
+    public User getUserById(Long id) {
+        return myPageMapper.findById(id);
+    }
 
     private RespUserInfoDto toRespUserInfoDto(User user) {
         Address address = user.getAddress();
@@ -84,18 +92,11 @@ public class UserService {
     }
 
     public void editPassword(ReqUpdatePasswordDto dto) {
+        User user = getUserById(dto.getUserId());
 
-//        if(!passwordEncoder.matches(dto.getOldPassword(), user.getPassword())) {
-//            throw new ValidException(Map.of("oldPassword", "비밀번호 인증에 실패하였습니다. 다시 입력하세요"));
-//        }
-//        if(!dto.getNewPassword().equals(dto.getNewCheckPassword())) {
-//            throw new ValidException(Map.of("newPasswordCheck", "비밀번호 인증에 실패하였습니다. 다시 입력하세요"));
-//        }
-//        if(passwordEncoder.matches(dto.getNewPassword(), user.getPassword())) {
-//            throw new ValidException(Map.of("newPasswordCheck", "비밀번호 인증에 실패하였습니다. 다시 입력하세요"));
-//        }
-//        user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
-//        myPageMapper.editPassword(user);
+        user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+
+        myPageMapper.editPassword(user);
     }
 
     public void modifyPet(ReqUpdatePetDto dto) {
