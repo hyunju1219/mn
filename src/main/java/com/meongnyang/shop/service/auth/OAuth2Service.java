@@ -6,7 +6,7 @@ import com.meongnyang.shop.entity.User;
 import com.meongnyang.shop.entity.UserRole;
 import com.meongnyang.shop.exception.SignupException;
 import com.meongnyang.shop.repository.RoleMapper;
-import com.meongnyang.shop.repository.UserMapper;
+import com.meongnyang.shop.repository.AdminUserMapper;
 import com.meongnyang.shop.repository.UserRoleMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -27,7 +27,7 @@ import java.util.Set;
 @Service
 public class OAuth2Service implements OAuth2UserService {
     private final DefaultOAuth2UserService defaultOAuth2UserService;
-    private final UserMapper userMapper;
+    private final AdminUserMapper adminUserMapper;
     private final RoleMapper roleMapper;
     private final UserRoleMapper userRoleMapper;
 
@@ -59,7 +59,7 @@ public class OAuth2Service implements OAuth2UserService {
     public void oauth2Signup (ReqOauth2SignupDto dto) {
         try {
             User user = dto.toEntity();
-            userMapper.save(user);
+            adminUserMapper.save(user);
             Role role = roleMapper.findByRoleName("ROLE_USER");
             if(role == null) {
                 role = Role.builder()

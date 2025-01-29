@@ -9,8 +9,6 @@ import com.meongnyang.shop.entity.Pet;
 import com.meongnyang.shop.entity.User;
 import com.meongnyang.shop.exception.UpdateUserException;
 import com.meongnyang.shop.repository.user.MyPageMapper;
-import com.meongnyang.shop.repository.user.UserAddressMapper;
-import com.meongnyang.shop.repository.user.UserPetMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,10 +20,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class UserService {
-    private final MyPageMapper myPageMapper;
+
     private final BCryptPasswordEncoder passwordEncoder;
-    private final UserAddressMapper userAddressMapper;
-    private final UserPetMapper userPetMapper;
+    private final AddressService addressService;
+    private final PetService petService;
+    private final MyPageMapper myPageMapper;
 
     private RespUserInfoDto toRespUserInfoDto(User user) {
         Address address = user.getAddress();
@@ -57,11 +56,6 @@ public class UserService {
         User user = myPageMapper.findById(userId);
         return toRespUserInfoDto(user);
     }
-    
-    private Boolean isExistAddress(Long userId) {
-        Address address = userAddressMapper.findAddressByUserId(userId);
-        return address != null;
-    }
 
     private void updateUserInfo(ReqUpdateUserDto dto) {
         myPageMapper.UpdateUserInfoById(dto.toEntity());
@@ -70,11 +64,11 @@ public class UserService {
     private void updateAddress(ReqUpdateUserDto dto) {
         Address address = dto.toEntityAddress();
 
-        if(!isExistAddress(address.getId())) {
-            userAddressMapper.saveAddress(address);
+        if(!addressService.isExistAddress(address.getId())) {
+            addressService.registerAddress(address);
             return;
         }
-        userAddressMapper.UpdateAddressByUserId(address);
+        addressService.updateAddress(address);
     }
 
     @Transactional(rollbackFor = UpdateUserException.class)
@@ -104,19 +98,14 @@ public class UserService {
 //        myPageMapper.editPassword(user);
     }
 
-    private Boolean isExistPet(Long userId) {
-        Pet pet = userPetMapper.findPetByUserId(userId);
-        return pet != null;
-    }
-
     public void modifyPet(ReqUpdatePetDto dto) {
         try {
             Pet pet = dto.toEntity();
 
-            if(!isExistPet(dto.getId())) {
-                userPetMapper.savePet(pet);
+            if(!petService.isExistPet(dto.getId())) {
+                petService.registerPet(pet);
             }
-            userPetMapper.UpdatePetByUserId(pet);
+                petService.updatePet(pet);
         } catch (Exception e) {
             throw new UpdateUserException(e.getMessage());
         }

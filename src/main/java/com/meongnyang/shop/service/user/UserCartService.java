@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class UserCartService {
-    private final ImgUrlMapper imgUrlMapper;
+    private final ImgUrlService imgUrlService;
     private final UserCartMapper userCartMapper;
 
     public List<Cart> getCartIdAll(Long userId) {
@@ -91,7 +91,7 @@ public class UserCartService {
     }
 
     private RespGetCartDto.CartContent mapToCartContent(Cart cart) {
-        String imgUrlName = imgUrlMapper.findImgNameByProductId(cart.getProductId()).getImgName();
+        String imgUrlName = imgUrlService.getImgUrlName(cart.getProductId());
         return cart.toDto(imgUrlName != null ? imgUrlName : "");
     }
 

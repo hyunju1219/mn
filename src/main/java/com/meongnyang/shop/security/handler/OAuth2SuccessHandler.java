@@ -1,10 +1,9 @@
 package com.meongnyang.shop.security.handler;
 
 import com.meongnyang.shop.entity.User;
-import com.meongnyang.shop.repository.UserMapper;
+import com.meongnyang.shop.repository.AdminUserMapper;
 import com.meongnyang.shop.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -19,7 +18,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Component
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-    private final UserMapper userMapper;
+    private final AdminUserMapper adminUserMapper;
     private final JwtProvider jwtProvider;
 
     @Override
@@ -30,7 +29,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String oAuth2Name = attributes.get("id").toString();
         String provider = attributes.get("provider").toString();
 
-        User user = userMapper.findUserByUsername(oAuth2Name);
+        User user = adminUserMapper.findUserByUsername(oAuth2Name);
 
         //oauth회원가입
         if (user == null) {

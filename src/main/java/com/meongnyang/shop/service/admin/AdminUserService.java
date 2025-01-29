@@ -13,7 +13,7 @@ import com.meongnyang.shop.exception.NotFoundUserException;
 import com.meongnyang.shop.repository.MembershipMapper;
 import com.meongnyang.shop.repository.OrderMapper;
 import com.meongnyang.shop.repository.PetMapper;
-import com.meongnyang.shop.repository.UserMapper;
+import com.meongnyang.shop.repository.AdminUserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -25,13 +25,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class AdminUserService {
-    private final UserMapper userMapper;
+    private final AdminUserMapper adminUserMapper;
     private final MembershipMapper membershipMapper;
     private final OrderMapper orderMapper;
     private final PetMapper petMapper;
 
     public RespGetUsersDto getUsers() {
-        List<User> userList = userMapper.findAll().stream()
+        List<User> userList = adminUserMapper.findAll().stream()
                 .filter(user -> user.getUserRoles().stream()
                         .anyMatch(role -> role.getRole().getRoleName().equals("ROLE_USER")))
                 .collect(Collectors.toList());
@@ -66,21 +66,21 @@ public class AdminUserService {
                 "option", dto.getOption() == null || dto.getOption().isBlank() ? "all" : dto.getOption()
         );
 
-        List<User> userList = userMapper.findUserByOption(params).stream()
+        List<User> userList = adminUserMapper.findUserByOption(params).stream()
                 .filter(user -> user.getUserRoles().stream()
                         .anyMatch(role -> role.getRole().getRoleName().equals("ROLE_USER")))
                 .collect(Collectors.toList());
 
         return RespGetUsersDto.builder()
                 .userList(userList)
-                .userListCount(userMapper.getCountByOption(params))
+                .userListCount(adminUserMapper.getCountByOption(params))
                 .build();
     }
 
     public RespGetUserDetailDto getUserDetail(Long userId) {
-        User user = userMapper.findUserDetailById(userId);
+        User user = adminUserMapper.findUserDetailById(userId);
         List<RespGetUserDetailDto.RespUserDetailProductDto> userOrderList = orderMapper.getOrderDetailProductsById(userId);
-        RespGetUserDetailDto.UserPurchaseData userPurchaseData = userMapper.findUserPurchaseDateById(userId);
+        RespGetUserDetailDto.UserPurchaseData userPurchaseData = adminUserMapper.findUserPurchaseDateById(userId);
         Pet pet = petMapper.findPetByUserId(userId);
 
         if (user == null) {
@@ -91,7 +91,7 @@ public class AdminUserService {
     }
 
     public void modifyUserMembership(ReqModifyMembershipLevelDto dto) {
-        User user = userMapper.findUserById(dto.getUserId());
+        User user = adminUserMapper.findUserById(dto.getUserId());
         if (user == null) {
             throw new NotFoundUserException("사용자를 찾을 수 없습니다.");
         }
@@ -100,7 +100,7 @@ public class AdminUserService {
         if (!membershipList.contains(dto.getMembershipId())) {
             throw new NotFoundMembershipException("존재하지 않는 등급입니다.");
         }
-        userMapper.updateUserMembershipById(dto.getUserId(), dto.getMembershipId());
+        adminUserMapper.updateUserMembershipById(dto.getUserId(), dto.getMembershipId());
     }
 
     public RespGetMembershipsDto getMemberships() {
@@ -116,12 +116,12 @@ public class AdminUserService {
         for (Order order : orderList) {
             Long userId = order.getUserId();
             Long totalPrice = order.getTotalPrice();
-            User user = userMapper.findUserMembershipLevel(userId);
+            User user = adminUserMapper.findUserMembershipLevel(userId);
             if (totalPrice >= 500000 && user.getMembershipLevelId() == 2) {
-                userMapper.updateUserMembershipById(userId, 1L);
+                adminUserMapper.updateUserMembershipById(userId, 1L);
             }
             if (totalPrice < 500000 && user.getMembershipLevelId() == 1) {
-                userMapper.updateUserMembershipById(userId, 2L);
+                adminUserMapper.updateUserMembershipById(userId, 2L);
             }
         }
         System.out.println("사용자 등급 업데이트 성공");
