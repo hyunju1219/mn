@@ -2,18 +2,32 @@ spring:
   profiles:
     active: blue
     group:
-      local: local_server, common, secret
-      blue: blue_server, common, secret
-      green: green_server, common, secret
+      local: local, common, secret
+      blue: blue, common, secret
+      green: green, common, secret
 
+server:
+  env: blue
 ---
 
 spring:
   config:
     activate:
-      on-profile: local_server
+      on-profile: local
+  security:
+    oauth2:
+      client:
+        registration:
+          naver:
+            redirectUri: http://localhost:8080/login/oauth2/code/naver
+          kakao:
+            redirectUri: http://localhost:8080/login/oauth2/code/kakao
 server:
   port: 8080
+  serverAddress: localhost
+
+serverName: local_server
+
 client:
   address: http://localhost:3000
 
@@ -22,9 +36,21 @@ client:
 spring:
   config:
     activate:
-      on-profile: blue_server
+      on-profile: blue
+  security:
+    oauth2:
+      client:
+        registration:
+          naver:
+            redirectUri: http://15.165.96.196/login/oauth2/code/naver
+          kakao:
+            redirectUri: http://15.165.96.196/login/oauth2/code/kakao
 server:
   port: 8080
+  serverAddress: 15.165.96.196
+
+serverName: blue_server
+
 client:
   address: https://d2rbwqvcx2p2xt.cloudfront.net
 
@@ -33,9 +59,21 @@ client:
 spring:
   config:
     activate:
-      on-profile: green_server
+      on-profile: green
+  security:
+    oauth2:
+      client:
+        registration:
+          naver:
+            redirectUri: http://15.165.96.196/login/oauth2/code/naver
+          kakao:
+            redirectUri: http://15.165.96.196/login/oauth2/code/kakao
 server:
   port: 9090
+  serverAddress: 15.165.96.196
+
+serverName: green_server
+
 client:
   address: https://d2rbwqvcx2p2xt.cloudfront.net
 ---

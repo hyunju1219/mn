@@ -34,6 +34,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.exceptionHandling().authenticationEntryPoint(authenticationHandler);
 
         http.authorizeRequests()
+                .antMatchers("/hc", "/env")
+                .permitAll()
                 .antMatchers("/auth/**",
 //                        "/order/**",
 //                        "/orders/**",
