@@ -253,8 +253,7 @@ public class AdminProductService {
 
         // 서버컴퓨터 이미지 삭제
         for(String filename : fileNameList) {
-            File file = new File(filePath + filename);
-            file.delete();
+            amazonS3.deleteObject(bucket, filename);
         }
     }
 }
