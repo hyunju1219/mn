@@ -1,5 +1,9 @@
 package com.meongnyang.shop.service.admin;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.meongnyang.shop.dto.request.admin.ReqDeleteProductDto;
 import com.meongnyang.shop.dto.request.admin.ReqModifyProductDto;
 import com.meongnyang.shop.dto.request.admin.ReqRegisterProductDto;
@@ -25,6 +29,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Service
 public class AdminProductService {
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
+
     @Value("${file.path}")
     private String filePath;
     private final ProductMapper productMapper;
@@ -33,6 +41,8 @@ public class AdminProductService {
     private final PetGroupMapper petGroupMapper;
     private final CategoryMapper categoryMapper;
     private final ProductDetailImgMapper productDetailImgMapper;
+    private final AmazonS3 amazonS3;
+
 
     @Transactional(rollbackFor = Exception.class)
     public void registerProduct(ReqRegisterProductDto dto) throws IOException {
@@ -212,14 +222,18 @@ public class AdminProductService {
         return false;
     }
 
-    public void registerProductImg(MultipartFile img) throws IOException {
-        String imgName = img.getOriginalFilename();
-        File directory = new File(filePath);
-        if(!directory.exists()) {
-            directory.mkdirs();
+    public void registerProductImg(MultipartFile multipartFile) throws IOException {
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentLength(multipartFile.getSize());
+        objectMetadata.setContentType(multipartFile.getContentType());
+
+        String imgName = multipartFile.getOriginalFilename();
+        try {
+            amazonS3.putObject(new PutObjectRequest(bucket, imgName, multipartFile.getInputStream(), objectMetadata)
+                    .withCannedAcl(CannedAccessControlList.PublicRead));
+        } catch (IOException e) {
+            throw new IllegalArgumentException("이미지 업로드 중 오류 발생", e);
         }
-        File file = new File(filePath + imgName);
-        img.transferTo(file);
     }
 
     public void deleteImgUrl(List<ImgUrl> imgUrls) {
